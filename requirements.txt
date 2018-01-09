@@ -1,0 +1,7 @@
+google_auth_oauthlib==0.2.0
+rocksmith==0.1
+Unidecode==1.0.22
+pycrypto==2.6.1
+beautifulsoup4==4.6.0
+protobuf==3.5.1
+google_api_python_client==1.6.4
