@@ -5,6 +5,11 @@ Setup
 ```
   install from requirements.txt pip install -r requirements.txt
   change steam base path in rs_profile_viewer.py (basePath var)
+  
+  create google cloud project here: https://console.cloud.google.com/
+  generate API Key and OAuth client id  (client type other)
+  change DEVELOPER_KEY in rs_profile_viewer.py with API Key  //for querying youtube
+  change client_id, client_secret in client_secret.json      //for creating/update playlist
 ```
 Create Local Rocksmith DLC DB from Steam
 ```
