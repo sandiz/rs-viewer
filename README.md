@@ -52,6 +52,11 @@ Path to Profile DB (for mac) (ends with prfldb)
 /Users/<username>/Library/Application Support/Steam/userdata/<id>/221680/remote
 ```
 
+sqlite3 operations
+  show all marked tracks: 
+  ```
+  sqlite3 rocksmithdlc.db  "select * from songs where ignore!=0;"
+  ```
 
 My Use Case - An updated playlist of all tracks that i dont own (to find out which dlc's to buy)
   - when new dlc is released, I update the dlc db with `python update_db.py`
