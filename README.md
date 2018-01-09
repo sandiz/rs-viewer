@@ -42,7 +42,20 @@ Mark tracks as ignore - ignored tracks dont show up in the playlist
 python3 rs_profile_viewer.py -f /path/to/steam_prfldb -1 "Pretty Noose"
 ```
 
+Reset ignored track
+``` 
+python3 rs_profile_viewer.py -f /path/to/steam_prfldb -0 "Pretty Noose"
+```
+
 Path to Profile DB (for mac) (ends with prfldb)
 ```
 /Users/<username>/Library/Application Support/Steam/userdata/<id>/221680/remote
 ```
+
+
+My Use Case - An updated playlist of all tracks that i dont own (to find out which dlc's to buy)
+  - when new dlc is released, I update the dlc db with `python update_db.py`
+  - update existing youtube playlist with new tracks and remove tracks that I have marked ignore with 
+    `python3 rs_profile_viewer.py -f mockdata/0976b41ec00d496f9f4214aa2c752700_prfldb -g -p PLs5V9xxV6ZM9UvyaGobZm9HdJ1Zy_A3My`
+  - when listening to the playlist, I mark tracks that i dont like with 
+    `python3 rs_profile_viewer.py -f mockdata/0976b41ec00d496f9f4214aa2c752700_prfldb -1 "Pretty Noose`
