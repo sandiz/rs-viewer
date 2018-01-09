@@ -17,7 +17,7 @@ Create Local Rocksmith DLC DB from Steam (optional if you use the rocksmithdlc.d
 python update_db.py
 ```
 
-Generate HTML Completion Stats (output.html for a preview)
+Generate HTML Completion Stats (open output.html to see a preview)
 ```
 python3 rs_profile_viewer.py -f /path/to/steam_prfldb -h
 ```
