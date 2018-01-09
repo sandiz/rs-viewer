@@ -14,7 +14,7 @@ Setup
 ```
 Create Local Rocksmith DLC DB from Steam (optional if you use the rocksmithdlc.db from the repo)
 ```
-python update_db.py
+python update_db.py # prone to hitting steam api request limit 
 ```
 
 Generate HTML Completion Stats (open output.html to see a preview)
