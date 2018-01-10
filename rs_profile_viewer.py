@@ -424,6 +424,12 @@ def mark_song(a, v):
     if(len(rows) > 0):
         print ( str(rows[0]))
 
+    c.execute("select name, appid from songs where ignore=? ORDER by appid ASC", (v, ))
+
+    print ("\nAll tracks with tag: " + str(v))
+    for row in c.fetchall():
+        print(row[0] + " - " + "http://store.steampowered.com/app/" + str(row[1]))
+
 def print_dlc_stats():
     conn = sqlite3.connect("rocksmithdlc.db")
     c = conn.cursor()
