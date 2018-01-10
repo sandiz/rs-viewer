@@ -56,6 +56,7 @@ sqlite3 operations
   show all marked tracks: 
   ```
   sqlite3 rocksmithdlc.db  "select * from songs where ignore!=0;"
+  sqlite3 rocksmithdlc.db  "select name, appid from songs where ignore!=0;"  | sed 's/\(^.*\)\(.*\)|/\1 - http:\/\/store.steampowered.com\/app\/\2/g' #with store url
   ```
 
 My Use Case - An updated playlist of all tracks that i dont own (to find out which dlc's to buy)
