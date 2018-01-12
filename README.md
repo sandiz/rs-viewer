@@ -1,4 +1,6 @@
 # rs-viewer
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fsandiz%2Frs-viewer.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fsandiz%2Frs-viewer?ref=badge_shield)
+
 Rocksmith Profile Stats Generator + Playlist Creator
 
 Setup
@@ -73,3 +75,7 @@ My Use Case - An updated playlist of all tracks that i dont own (to find out whi
     `python3 rs_profile_viewer.py -f mockdata/0976b41ec00d496f9f4214aa2c752700_prfldb -g -p PLs5V9xxV6ZM9UvyaGobZm9HdJ1Zy_A3My`
   - when listening to the playlist, I mark tracks that i dont like with 
     `python3 rs_profile_viewer.py -f mockdata/0976b41ec00d496f9f4214aa2c752700_prfldb -1 "Pretty Noose`
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fsandiz%2Frs-viewer.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fsandiz%2Frs-viewer?ref=badge_large)
