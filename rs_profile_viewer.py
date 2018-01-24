@@ -83,6 +83,7 @@ def print_html():
 
 def open_and_print_profile(file):
     global MasteryCache
+    global SongCache
     f = open(file, 'rb')
     data = f.read()
     unk1 = struct.unpack('<L', data[16:20])
@@ -92,14 +93,20 @@ def open_and_print_profile(file):
     Profile = json.loads(decompressed[0:-1])
     f.close()
     f = open("player_data.json", "w")
-    f.write(str(decompressed[0:-1]))
+    f.write(json.dumps(Profile, sort_keys=True,
+                       indent=4, separators=(',', ': ')))
     f.close()
     # print learn a song stats
     for id in Profile["Stats"]["Songs"]:
         detail = Profile["Stats"]["Songs"][id]
         mastery = -1
-        if("MasteryLast" in detail):
-            mastery = detail["MasteryLast"] * 100
+        #if(id in SongCache):
+        #    if(SongCache[id]['song'] == "Mean Bitch"):
+        #        pdb.set_trace()
+        
+        #used MasteryLast before
+        if("MasteryPeak" in detail):
+            mastery = detail["MasteryPeak"] * 100
         else:
             mastery = 0
         MasteryCache[id] = mastery
@@ -383,8 +390,6 @@ def main():
         else:
             assert False, "unhandled option"
 
-    if file != "":
-        open_and_print_profile(file)
     
     if noPickle:
         print ("Reading psarcs from disk...")
@@ -401,6 +406,9 @@ def main():
         except:
             print ("Reading psarcs from disk(file exception)...")
             read_psarc()
+
+    if file != "":
+        open_and_print_profile(file)
     if generate:
         generate_yt_missing_playlist(playlistID)
         sys.exit(0)
