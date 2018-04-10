@@ -101,10 +101,16 @@ def print_html():
             SongDetails = SongCache[id]
             if not SongDetails['song']:
                 continue
+            if (SongDetails["artist"] in ["AAA Rocksmith"]):
+                continue
             if (SongDetails["arrangement"] in ["Vocals"]):
                 continue
+
+            rs1dlc = SongDetails["dlc"] and (SongDetails["sku"] in ["RS1"])
             datatowrite += "<tr><td class='song'>{}</td> <td class='artist'>{}</td> <td class='arrangement'>{}</td> <td class='mastery'>{}</td><td>".format(
-                SongDetails["song"], SongDetails["artist"],
+                SongDetails["song"],
+                (SongDetails["artist"] if not rs1dlc else
+                 SongDetails["artist"] + " (RS1 Comptability DLC)"),
                 SongDetails["arrangement"], "-")
 
             OtherStats = OtherStatCache[id] if id in OtherStatCache else {}

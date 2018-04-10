@@ -159,6 +159,7 @@
             padding: 2rem;
             background: #fff;
             color: #444;
+            border-radius: 20px;
         }
 
         .modal-window header {
@@ -249,6 +250,9 @@
             <button class="sort" data-sort="arrangement">
                 Sort by Arrangement
             </button>
+            <button class="random" id="filterrs1">
+                Hide RS1 Compat Tracks
+            </button>
         </div>
         <br/>
         <div class="tacenter">
@@ -323,7 +327,24 @@
             else if (userList.items[i]._values.arrangement.toLowerCase().includes("bass"))
                 bass.push(i)
         }
+        var filteron = false;
+        $("#filterrs1").click(function () {
+            filteron = !filteron;
+            $(this).html((filteron ? "Show " : "Hide ") + "RS1 Compat Tracks");
 
+            userList.filter(function (item) {
+                if (filteron) {
+                    if (item.values().artist.toLowerCase().includes("rs1")) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+                else {
+                    return true;
+                }
+            })
+        });
         $('#myTable tr').click(function () {
             var trindex = $(this).index();
             var song = $(this).find('td:first').text();
