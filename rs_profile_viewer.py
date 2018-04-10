@@ -73,7 +73,7 @@ def print_html():
             notFound.append(id)
             continue
         SongDetails = SongCache[id]
-        datatowrite += "<tr><td>{}</td> <td>{}</td> <td>{}</td> <td>{}</td><td>".format(
+        datatowrite += "<tr><td class='song'>{}</td> <td class='artist'>{}</td> <td class='arrangement'>{}</td> <td class='mastery'>{}</td><td>".format(
             SongDetails["song"], SongDetails["artist"],
             SongDetails["arrangement"],
             str(mastery) + "%")
@@ -88,7 +88,7 @@ def print_html():
         OtherStats = OtherStatCache[id] if id in OtherStatCache else {}
 
         PlayedCount = OtherStats.get("PlayedCount", 0)
-        datatowrite += "<td>{}</td>".format(PlayedCount)
+        datatowrite += "<td class='count'>{}</td>".format(PlayedCount)
 
         #end row
         datatowrite += "</tr>"

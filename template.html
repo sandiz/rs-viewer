@@ -4,7 +4,7 @@
     <style>
         * {
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+            font-family: Iosevka, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
         }
 
         #myInput {
@@ -25,6 +25,13 @@
             font-size: 18px;
         }
 
+        #tracks {
+            margin-left: auto;
+            margin-right: auto;
+            margin: 0 auto;
+            width: 90%;
+        }
+
         #myTable th,
         #myTable td {
             text-align: left;
@@ -39,51 +46,119 @@
         #myTable tr:hover {
             background-color: #f1f1f1;
         }
+
+        .sort {
+            padding: 8px 30px;
+            border-radius: 6px;
+            border: none;
+            display: inline-block;
+            color: #fff;
+            text-decoration: none;
+            background-color: #28a8e0;
+            height: 30px;
+            font-size: 12px;
+        }
+
+        .sort:hover {
+            text-decoration: none;
+            background-color: #1b8aba;
+        }
+
+        .sort:focus {
+            outline: none;
+        }
+
+        .sort:after {
+            display: inline-block;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            content: "";
+            position: relative;
+            top: -10px;
+            right: -5px;
+        }
+
+        .sort.asc:after {
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid #fff;
+            content: "";
+            position: relative;
+            top: 4px;
+            right: -5px;
+        }
+
+        .sort.desc:after {
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 5px solid #fff;
+            content: "";
+            position: relative;
+            top: -4px;
+            right: -5px;
+        }
+
+        .search {
+            width: 50%;
+            height: 30px;
+            font-size: 15px;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: aliceblue;
+        }
     </style>
 </head>
 
 <body>
-    <h2>Rocksmith 2014 Stats</h2>
-    <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for names.." title="Type in a name">
-    <table id="myTable">
-        <tr class="header">
-            <th style="width:25%;">Song</th>
-            <th style="width:25%;">Artist</th>
-            <th style="width:12.5%;">Arrangment</th>
-            <th style="width:12.5%;">Mastery</th>
-            <th style="width:12.5%;"></th>
-            <th style="width:12.5%;">Count</th>
-        </tr>
-        --INSERTMARKER--
-    </table>
+    <h2 style="text-align:center">Rocksmith 2014 Stats</h2>
+    <div id="tracks">
+        <input class="search" placeholder="Search" />
+        <button class="sort" data-sort="song">
+            Sort by Song
+        </button>
+        <button class="sort" data-sort="artist">
+            Sort by Artist
+        </button>
+        <button class="sort" data-sort="mastery">
+            Sort by Mastery
+        </button>
+        <button class="sort" data-sort="count">
+            Sort by PlayedCount
+        </button>
+        <button class="sort" data-sort="arrangment">
+            Sort by Arrangement
+        </button>
+        <br/>
+        <br/>
+        <table id="myTable">
+            <tr class="header">
+                <th style="width:25%;">Song</th>
+                <th style="width:25%;">Artist</th>
+                <th style="width:12.5%;">Arrangment</th>
+                <th style="width:12.5%;">Mastery</th>
+                <th style="width:12.5%;"></th>
+                <th style="width:12.5%;">Count</th>
+            </tr>
+            <tbody class="list">
+                --INSERTMARKER--
+            </tbody>
+        </table>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
     <script>
-        function myFunction() {
-            var input, filter, table, tr, td, i;
-            input = document.getElementById("myInput");
-            filter = input.value.toUpperCase();
-            col = 0;
-            if (filter.indexOf(":") == 1) {
-                // 0:text format
-                splitdata = filter.split(":");
-                col = parseInt(splitdata[0]);
-                if (splitdata[1])
-                    filter = splitdata[1].toUpperCase();
-                else
-                    filter = input.value.toUpperCase();
-            }
-            table = document.getElementById("myTable");
-            tr = table.getElementsByTagName("tr");
-            for (i = 0; i < tr.length; i++) {
-                td = tr[i].getElementsByTagName("td")[col];
-                if (td) {
-                    if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
-                        tr[i].style.display = "";
-                    } else {
-                        tr[i].style.display = "none";
-                    }
-                }
-            }
-        }
+        var options = {
+            valueNames: ['song', 'artist', 'mastery', 'count', 'arrangment']
+        };
+
+        var userList = new List('tracks', options);
     </script>
 </body>
 
