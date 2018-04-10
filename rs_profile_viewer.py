@@ -76,7 +76,7 @@ def print_html():
         datatowrite += "<tr><td class='song'>{}</td> <td class='artist'>{}</td> <td class='arrangement'>{}</td> <td class='mastery'>{}</td><td>".format(
             SongDetails["song"], SongDetails["artist"],
             SongDetails["arrangement"],
-            str(mastery) + "%")
+            str(round(mastery, 2)) + "%")
 
         if (mastery > 90):
             datatowrite += "<svg width='100%' height='20%'><rect width='" + \
@@ -97,6 +97,9 @@ def print_html():
     for x in fin:
         if "--INSERTMARKER--" in x:
             fout.write(datatowrite)
+        elif "--STATSMARKER--" in x:
+            stats = print_dlc_stats(True)
+            fout.write(stats)
         else:
             fout.write(x)
     print("output.html generated")
@@ -421,13 +424,13 @@ def main():
             playlistID = a
         elif o in ("-1"):
             mark_song(a, 1)
-            sys.exit(0)
+            sys.exit(1)
         elif o in ("-2"):
             mark_song(a, 2)
-            sys.exit(0)
+            sys.exit(1)
         elif o in ("-0"):
             mark_song(a, 0)
-            sys.exit(0)
+            sys.exit(1)
         else:
             assert False, "unhandled option"
 
@@ -451,7 +454,7 @@ def main():
         open_and_print_profile(file)
     if generate:
         generate_yt_missing_playlist(playlistID)
-        sys.exit(0)
+        sys.exit(1)
 
     if (html):
         print_html()
@@ -484,7 +487,7 @@ def mark_song(a, v):
               str(row[1]))
 
 
-def print_dlc_stats():
+def print_dlc_stats(dontprint=False):
     conn = sqlite3.connect("rocksmithdlc.db")
     c = conn.cursor()
     c.execute("PRAGMA case_sensitive_like=OFF;")
@@ -504,12 +507,17 @@ def print_dlc_stats():
     )
     total_not_owned = c.fetchall()[0][0]
 
-    print(
-        "Total DLC(steam): {} Excluding SongPacks: {} Owned: {} Not Owned: {}".
-        format(total_dlc, total_dlc_no_sp, total_owned, total_not_owned))
+    if dontprint:
+        pass
+    else:
+        print(
+            "Total DLC(steam): {} Excluding SongPacks: {} Owned: {} Not Owned: {}".
+            format(total_dlc, total_dlc_no_sp, total_owned, total_not_owned))
 
     conn.commit()
     conn.close()
+    return "Total DLC(steam): {} Excluding SongPacks: {} Owned: {} <a href=\"https://www.youtube.com/playlist?list=PLs5V9xxV6ZM_DQ5BO3mPH4IXnaXW6XE2-\">Not Owned</a>: {}".format(
+        total_dlc, total_dlc_no_sp, total_owned, total_not_owned)
 
 
 def build_resource(properties):
