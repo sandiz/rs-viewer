@@ -1,6 +1,6 @@
 from Crypto.Cipher import AES
 from datetime import datetime
-import json, struct, zlib, getopt
+import json, struct, zlib, getopt, math
 import sys, pdb, os, glob, traceback
 from rocksmith.utils import pack, unpack, convert, print_sng
 from rocksmith import PSARC
@@ -78,12 +78,15 @@ def print_html():
             SongDetails["arrangement"],
             str(round(mastery, 2)) + "%")
 
-        if (mastery > 90):
+        if (mastery > 95):
             datatowrite += "<svg width='100%' height='20%'><rect width='" + \
-                str(clip(0, mastery, 100)) + "%' height='100%' style='fill:lightgreen;stroke-width:2;stroke:rgb(0,0,0)'></rect></svg>" + "</td>"
+                str(math.ceil(clip(0, mastery, 100))) + "%' height='100%' style='fill:lightgreen;stroke-width:2;stroke:rgb(0,0,0)'></rect></svg>" + "</td>"
+        elif (mastery < 95 and mastery > 90):
+            datatowrite += "<svg width='100%' height='20%'><rect width='" + \
+                str(math.ceil(clip(0, mastery, 100))) + "%' height='100%' style='fill:#C8F749;stroke-width:2;stroke:rgb(0,0,0)'></rect></svg>" + "</td>"
         else:
             datatowrite += "<svg width='100%' height='20%'><rect width='" + \
-                str(clip(0, mastery, 100)) + "%' height='100%' style='fill:yellow;stroke-width:2;stroke:rgb(0,0,0)'></rect></svg>" + "</td>"
+                str(math.ceil(clip(0, mastery, 100))) + "%' height='100%' style='fill:yellow;stroke-width:2;stroke:rgb(0,0,0)'></rect></svg>" + "</td>"
 
         OtherStats = OtherStatCache[id] if id in OtherStatCache else {}
 
@@ -188,7 +191,7 @@ def read_psarc():
             content = PSARC(True).parse_stream(fh)
             for filepath, data in content.items():
                 if "json" in filepath:
-                    #print ("Reading " + filepath)
+                    print("Reading " + filepath)
                     if filepath in jsonblacklist:
                         continue
                     songData = json.loads(data)
