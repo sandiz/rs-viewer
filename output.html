@@ -8,7 +8,15 @@
         }
 
         body {
-            zoom: 90%;
+            zoom: 75%;
+        }
+
+        html {
+            background-image: url(https://static2.cdn.ubi.com/ncsa/rocksmith/forums/Rocksmith_Forums55.jpg);
+            background-color: rgb(0, 0, 0);
+            background-repeat: no-repeat;
+            background-position: center 0;
+            background-attachment: fixed;
         }
 
         #myTable {
@@ -45,11 +53,10 @@
             border-radius: 6px;
             border: none;
             display: inline-block;
-            color: #fff;
             text-decoration: none;
             background-color: #28a8e0;
-            height: 30px;
-            font-size: 12px;
+            height: 33px;
+            font-size: 14px;
         }
 
         .random {
@@ -57,11 +64,10 @@
             border-radius: 6px;
             border: none;
             display: inline-block;
-            color: #fff;
             text-decoration: none;
             background-color: #28a8e0;
-            height: 30px;
-            font-size: 12px;
+            height: 33px;
+            font-size: 14px;
         }
 
         .random:hover {
@@ -126,7 +132,11 @@
         }
 
         tbody tr:nth-child(even) {
-            background-color: aliceblue;
+            background-color: #f0f8ffe8;
+        }
+
+        tbody tr:nth-child(odd) {
+            background-color: #ffffffd6;
         }
 
         .tacenter {
@@ -199,7 +209,11 @@
         }
 
         a {
-            color: dodgerblue;
+            color: blue;
+        }
+
+        h3 {
+            font-weight: normal;
         }
     </style>
     <title> Rocksmith 2014 Stats</title>
@@ -207,8 +221,9 @@
 
 <body>
     <h2 style="text-align:center">
-        Rocksmith 2014 Stats
-Total DLC(steam): 1354 Excluding SongPacks: 1088 Owned: 306 <a href="https://www.youtube.com/playlist?list=PLs5V9xxV6ZM_DQ5BO3mPH4IXnaXW6XE2-">Not Owned</a>: 782    </h2>
+        Rocksmith 2014 Stats</h2>
+    <h3 style="text-align:center" id="h3_stats">
+Total DLC(steam): 1354 Excluding SongPacks: 1088 Owned: 306 <a href="https://www.youtube.com/playlist?list=PLs5V9xxV6ZM_DQ5BO3mPH4IXnaXW6XE2-">Not Owned</a>: 782    </h3>
     <div id="tracks">
         <div class="tacenter">
             Useful Links:
@@ -219,7 +234,7 @@ Total DLC(steam): 1354 Excluding SongPacks: 1088 Owned: 306 <a href="https://www
                 <a target="_blank" href="https://www.twitch.tv/rocksmithgame">Ubisoft SF (Twitch)</a>
             </span>
             <span>
-                <a target="_blank" href="https://www.reddit.com/r/rocksmith">Sub Reddit</a>
+                <a target="_blank" href="https://www.reddit.com/r/rocksmith">/r/rocksmith</a>
             </span>
             <span>
                 <a target="_blank" href="https://theriffrepeater.com/">The Riff Repeater</a>
@@ -325,6 +340,7 @@ Total DLC(steam): 1354 Excluding SongPacks: 1088 Owned: 306 <a href="https://www
             else if (userList.items[i]._values.arrangement.toLowerCase().includes("bass"))
                 bass.push(i)
         }
+        $("#h3_stats").html("Arrangements: " + userList.items.length + " " + $("#h3_stats").html());
         var filteron = false;
         $("#filterrs1").click(function () {
             filteron = !filteron;
