@@ -37,6 +37,7 @@
         #myTable tr.header,
         #myTable tr:hover {
             background-color: #f1f1f1;
+            cursor: pointer;
         }
 
         .sort {
@@ -295,6 +296,19 @@
                 bass.push(i)
         }
 
+        $('#myTable tr').click(function () {
+            var trindex = $(this).index();
+            var song = $(this).find('td:first').text();
+            var artist = $(this).find('td:first').next().text();
+            for (var i = 0; i < userList.items.length; i++) {
+                var searchitem = userList.items[i];
+                if (searchitem._values.song == song && searchitem._values.artist == artist) {
+                    create_modal(i);
+                    break;
+                }
+            }
+        });
+
         $("#select_pt").on('click', function (e) {
             $(this).css("font-weight", "Bold");
             $("#select_mv").css("font-weight", "normal");
@@ -314,11 +328,14 @@
         });
         function show_random_song() {
             var songidx = get_random_song();
+            create_modal(songidx);
+        }
+        function create_modal(songidx) {
             var song = userList.items[songidx];
             $("#modal-song")[0].innerHTML = "Song: " + song._values.song;
             $("#modal-artist")[0].innerHTML = "Artist: " + song._values.artist;
-            var searchterm_pt = song._values.song + song._values.artist + " rocksmith ";
-            var searchterm_mv = song._values.song + song._values.artist + " music video "
+            var searchterm_pt = song._values.song + " " + song._values.artist + " rocksmith ";
+            var searchterm_mv = song._values.song + " " + song._values.artist + " music video "
             getRequest(searchterm_pt, "div_playthrough");
             getRequest(searchterm_mv, "div_musicvideo");
             open_modal();
@@ -374,6 +391,7 @@
                 key: 'AIzaSyAQPZZZVEH-lUTRuN4l2XF-zUB25eR45zo',
                 q: searchTerm
             };
+            console.log("Searching " + searchTerm);
 
             $.getJSON(url, params, function (searchTerm) {
                 showResults(searchTerm, id);
@@ -408,11 +426,22 @@
                 });
                 if (id == "div_playthrough") {
                     ptid = vid;
-                    ptplayer = player;
+                    if (ptplayer) {
+                        ptplayer.loadVideoById(vid);
+                        ptplayer.stopVideo();
+                    } else {
+                        ptplayer = player;
+                    }
                 }
                 else {
                     mvid = vid;
-                    mvplayer = player;
+                    if (mvplayer) {
+                        mvplayer.loadVideoById(vid);
+                        mvplayer.stopVideo();
+                    }
+                    else {
+                        mvplayer = player;
+                    }
                 }
             }
 

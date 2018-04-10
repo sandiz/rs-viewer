@@ -92,6 +92,25 @@ def print_html():
 
         #end row
         datatowrite += "</tr>"
+
+    for id in SongCache:
+        if id not in MasteryCache:
+            SongDetails = SongCache[id]
+            if not SongDetails['song']:
+                continue
+            if (SongDetails["arrangement"] in ["Vocals"]):
+                continue
+            datatowrite += "<tr><td class='song'>{}</td> <td class='artist'>{}</td> <td class='arrangement'>{}</td> <td class='mastery'>{}</td><td>".format(
+                SongDetails["song"], SongDetails["artist"],
+                SongDetails["arrangement"], "-")
+
+            OtherStats = OtherStatCache[id] if id in OtherStatCache else {}
+
+            PlayedCount = OtherStats.get("PlayedCount", 0)
+            datatowrite += "<td class='count'>{}</td>".format(PlayedCount)
+
+            datatowrite += "</tr>"
+
     fin = open("template.html", "r")
     fout = open("output.html", "w")
     for x in fin:
@@ -195,7 +214,7 @@ def read_psarc():
     pickle.dump(SongCache, songCacheFile)
 
 
-def generate_yt_missing_playlist(playlistID):
+def update_owned_status():
     conn = sqlite3.connect("rocksmithdlc.db")
     c = conn.cursor()
     for id in SongCache:
@@ -233,7 +252,15 @@ def generate_yt_missing_playlist(playlistID):
                   " " + SongDetails["artist"] + " isDLC: " +
                   str(SongDetails["dlc"]) + " SKU: " + SongDetails["sku"])
     conn.commit()
+    conn.close()
+
+
+def generate_yt_missing_playlist(playlistID):
+    update_owned_status()
+    conn = sqlite3.connect("rocksmithdlc.db")
+    c = conn.cursor()
     generate_playlist(conn, playlistID)
+    conn.commit()
     conn.close()
 
 
@@ -401,7 +428,7 @@ def search_yt(q, num=5):
 def main():
     global SongCache
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "f:ghnp:1:2:0:")
+        opts, args = getopt.getopt(sys.argv[1:], "f:ghnup:1:2:0:")
     except getopt.GetoptError as err:
         # print help information and exit:
         print(str(err))  # will print something like "option -a not recognized"
@@ -411,6 +438,7 @@ def main():
     html = False
     noPickle = False
     playlistID = None
+    updateDB = False
     for o, a in opts:
         if o in ("-f"):
             file = a
@@ -431,6 +459,8 @@ def main():
         elif o in ("-0"):
             mark_song(a, 0)
             sys.exit(1)
+        elif o in ("-u"):
+            updateDB = True
         else:
             assert False, "unhandled option"
 
@@ -455,6 +485,8 @@ def main():
     if generate:
         generate_yt_missing_playlist(playlistID)
         sys.exit(1)
+    if updateDB:
+        update_owned_status()
 
     if (html):
         print_html()
