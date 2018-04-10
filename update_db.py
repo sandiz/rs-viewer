@@ -1,5 +1,6 @@
 from __future__ import print_function
 from steamapiwrapper.SteamGames import Games
+from steamapiwrapper.Users import SteamUser
 import pdb
 import time
 from datetime import date
@@ -29,44 +30,46 @@ sql_update_entry = ''' UPDATE songs
 				owned = 0,
 				ignore = 0
               WHERE id = ?'''
+
+
 def fetch_and_save(dlcs):
-	for game in games.get_info_for(dlcs, 'US'):
-		print ("Processing dlc " + unidecode(game.name) + "...", end='')
-		c = conn.cursor()
-		c.execute(sql_create_entry, (game.appid,
-                               unidecode(game.name), date.today(), date.today()))
-		print (" Done")
-		conn.commit()
-	
+    for game in games.get_info_for(dlcs, 'US'):
+        print("Processing dlc " + unidecode(game.name) + "...", end='')
+        c = conn.cursor()
+        c.execute(
+            sql_create_entry,
+            (game.appid, unidecode(game.name), date.today(), date.today()))
+        print(" Done")
+        conn.commit()
+
 
 def is_dlc_present(dlc):
-	c = conn.cursor()
-	c.execute(sql_search_entry, (dlc,))
-	rows = c.fetchall()
-	return (len(rows) > 0)
+    c = conn.cursor()
+    c.execute(sql_search_entry, (dlc, ))
+    rows = c.fetchall()
+    return (len(rows) > 0)
+
 
 games = Games()
-appids = [221680] #rocksmith 2014 appid
+appids = [221680]  #rocksmith 2014 appid
 for game in games.get_info_for(appids, 'US'):
-	dlcs = game.raw_json["dlc"]
-	print ("DLCs: " + str(len(dlcs)))
+    dlcs = game.raw_json["dlc"]
+    print("DLCs: " + str(len(dlcs)))
 
 dlc_to_query = []
 for dlc in dlcs:
-	if is_dlc_present(dlc):
-		print ("Skipping dlc with appid: " + str(dlc))
-		continue
-	else:
-		dlc_to_query.append(dlc)
-	
-	if(len(dlc_to_query) == 1):
-		fetch_and_save(dlc_to_query)
-		dlc_to_query = []
-		#time.sleep(0.5)
-	
-if(len(dlc_to_query) > 0):
-	fetch_and_save(dlc_to_query)
-	dlc_to_query = []
+    if is_dlc_present(dlc):
+        print("Skipping dlc with appid: " + str(dlc))
+        continue
+    else:
+        dlc_to_query.append(dlc)
+
+    if (len(dlc_to_query) == 1):
+        fetch_and_save(dlc_to_query)
+        dlc_to_query = []
+        #time.sleep(0.5)
+
+if (len(dlc_to_query) > 0):
+    fetch_and_save(dlc_to_query)
+    dlc_to_query = []
 conn.close()
-
-
