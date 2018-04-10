@@ -196,7 +196,12 @@
             border: 1px solid black;
             padding: 5px;
         }
+
+        a {
+            color: dodgerblue;
+        }
     </style>
+    <title> Rocksmith 2014 Stats</title>
 </head>
 
 <body>
@@ -258,13 +263,17 @@ Total DLC(steam): 1354 Excluding SongPacks: 1088 Owned: 306 <a href="https://www
             <a href="#" title="Close" class="modal-close" onclick="javascript:close_modal();">Close</a>
             <h1 id="modal-song">Voilà!</h1>
             <h1 id="modal-artist">Voilà!</h1>
+            <h1 id="modal-path">Path: </h1>
             <div id="div_playthrough">
             </div>
             <div id="div_musicvideo" style="display:None">
             </div>
             <br/>
+            <br/>
             <a href="#" id="select_pt" style="font-weight:bold">Playthrough</a> |
             <a href="#" id="select_mv">Music Video</a>
+            <br/> Stats:
+            <span id="stats_span"></span>
         </div>
     </div>
     <script src=" https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js "></script>
@@ -298,15 +307,21 @@ Total DLC(steam): 1354 Excluding SongPacks: 1088 Owned: 306 <a href="https://www
             var trindex = $(this).index();
             var song = $(this).find('td:first').text();
             var artist = $(this).find('td:first').next().text();
+            var arrangement = $(this).find('td:first').next().next().text();
+            var mastery = $(this).find('td:first').next().next().next().text();
+            var count = $(this).find('td:first').next().next().next().next().next().text();
             for (var i = 0; i < userList.items.length; i++) {
                 var searchitem = userList.items[i];
-                if (searchitem._values.song == song && searchitem._values.artist == artist) {
+                if (searchitem._values.song == song
+                    && searchitem._values.artist == artist
+                    && searchitem._values.arrangement == arrangement
+                    && searchitem._values.mastery == mastery
+                    && searchitem._values.count == count) {
                     create_modal(i);
                     break;
                 }
             }
         });
-
         $("#select_pt").on('click', function (e) {
             $(this).css("font-weight", "Bold");
             $("#select_mv").css("font-weight", "normal");
@@ -315,7 +330,6 @@ Total DLC(steam): 1354 Excluding SongPacks: 1088 Owned: 306 <a href="https://www
             ptplayer.stopVideo();
             mvplayer.stopVideo();
         });
-
         $("#select_mv").on('click', function (e) {
             $(this).css("font-weight", "Bold");
             $("#select_pt").css("font-weight", "normal");
@@ -328,10 +342,32 @@ Total DLC(steam): 1354 Excluding SongPacks: 1088 Owned: 306 <a href="https://www
             var songidx = get_random_song();
             create_modal(songidx);
         }
+        function update_stats_in_modal(song) {
+            name = song._values.song;
+            artist = song._values.artist
+            var arrangement = []
+            for (var i = 0; i < userList.items.length; i++) {
+                var searchitem = userList.items[i];
+                if (searchitem._values.song == name && searchitem._values.artist == artist) {
+                    arrangement.push(searchitem._values.arrangement + "____" + searchitem._values.mastery);
+                }
+            }
+            console.log(arrangement);
+            var str = "";
+            for (var index = 0; index < arrangement.length; index++) {
+                var marker = (index < arrangement.length - 1) ? " | " : "  ";
+                var arr = arrangement[index].split("____");
+                str += arr[0] + " " + (arr[1] == "-" ? "0%" : arr[1]) + marker;
+            }
+            $("#stats_span")[0].innerHTML = str;
+        }
         function create_modal(songidx) {
             var song = userList.items[songidx];
             $("#modal-song")[0].innerHTML = "Song: " + song._values.song;
             $("#modal-artist")[0].innerHTML = "Artist: " + song._values.artist;
+            $("#modal-path")[0].innerHTML = "Path: " + song._values.arrangement +
+                " | Mastery: " + ((song._values.mastery == "-") ? "0%" : song._values.mastery);
+            update_stats_in_modal(song)
             var searchterm_pt = song._values.song + " " + song._values.artist + " rocksmith ";
             var searchterm_mv = song._values.song + " " + song._values.artist + " music video "
             getRequest(searchterm_pt, "div_playthrough");
@@ -451,6 +487,12 @@ Total DLC(steam): 1354 Excluding SongPacks: 1088 Owned: 306 <a href="https://www
                 event.target.loadVideoById(ptid);
             event.target.stopVideo();
         }
+        userList.on("searchComplete", function (e) {
+            console.log(e);
+        });
+        userList.on("sortComplete", function (e) {
+            console.log(e);
+        });
     </script>
     <script>
         var tag = document.createElement('script');
