@@ -1,234 +1,7 @@
 <html>
 
 <head>
-    <style>
-        * {
-            box-sizing: border-box;
-            font-family: Iosevka, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            zoom: 82%;
-        }
-
-        html {
-            background-image: url(https://static2.cdn.ubi.com/ncsa/rocksmith/forums/Rocksmith_Forums55.jpg);
-            background-color: rgb(0, 0, 0);
-            background-repeat: no-repeat;
-            background-position: center 0;
-            background-attachment: fixed;
-        }
-
-        #myTable {
-            border-collapse: collapse;
-            width: 100%;
-            font-size: 18px;
-        }
-
-        #tracks {
-            margin-left: auto;
-            margin-right: auto;
-            margin: 0 auto;
-            width: 80%;
-        }
-
-        #myTable th,
-        #myTable td {
-            text-align: center;
-            padding: 6px;
-        }
-
-        #myTable tr {
-            border-bottom: 1px solid #ddd;
-        }
-
-        #myTable tr.header,
-        #myTable tr:hover {
-            background-color: #f1f1f1;
-            cursor: pointer;
-        }
-
-        input[type='checkbox'] {
-            vertical-align: text-bottom;
-        }
-
-        .sort {
-            padding: 8px 30px;
-            border-radius: 6px;
-            border: none;
-            display: inline-block;
-            text-decoration: none;
-            background-color: #28a8e0;
-            height: 33px;
-            font-size: 14px;
-        }
-
-        .random {
-            padding: 8px 30px;
-            border-radius: 6px;
-            border: none;
-            display: inline-block;
-            text-decoration: none;
-            background-color: #28a8e0;
-            height: 33px;
-            font-size: 14px;
-        }
-
-        .random:hover {
-            text-decoration: none;
-            background-color: #1b8aba;
-        }
-
-        .random:focus {
-            outline: none;
-        }
-
-        .sort:hover {
-            text-decoration: none;
-            background-color: #1b8aba;
-        }
-
-        .sort:focus {
-            outline: none;
-        }
-
-        .sort:after {
-            display: inline-block;
-            width: 0;
-            height: 0;
-            border-left: 5px solid transparent;
-            border-right: 5px solid transparent;
-            border-bottom: 5px solid transparent;
-            content: "";
-            position: relative;
-            top: -10px;
-            right: -5px;
-        }
-
-        .sort.asc:after {
-            width: 0;
-            height: 0;
-            border-left: 5px solid transparent;
-            border-right: 5px solid transparent;
-            border-top: 5px solid #fff;
-            content: "";
-            position: relative;
-            top: 4px;
-            right: -5px;
-        }
-
-        .sort.desc:after {
-            width: 0;
-            height: 0;
-            border-left: 5px solid transparent;
-            border-right: 5px solid transparent;
-            border-bottom: 5px solid #fff;
-            content: "";
-            position: relative;
-            top: -4px;
-            right: -5px;
-        }
-
-        .search {
-            width: 50%;
-            height: 30px;
-            font-size: 15px;
-        }
-
-        tbody tr:nth-child(even) {
-            background-color: #f0f8ffe8;
-        }
-
-        tbody tr:nth-child(odd) {
-            background-color: #ffffffd6;
-        }
-
-        .tacenter {
-            text-align: center !important;
-        }
-
-        .modal-window {
-            position: fixed;
-            background-color: #f0f8ffe8;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
-            z-index: 999;
-            opacity: 0;
-            -webkit-transition: all 0.3s;
-            -moz-transition: all 0.3s;
-            transition: all 0.3s;
-            pointer-events: none;
-        }
-
-        .modal-window:target {
-            opacity: 1;
-        }
-
-        .modal-window>div {
-            width: 720px;
-            position: relative;
-            margin: 10% auto;
-            padding: 2rem;
-            background: #fff;
-            color: #444;
-            border-radius: 20px;
-        }
-
-        .modal-window header {
-            font-weight: bold;
-        }
-
-        .modal-close {
-            color: #aaa;
-            line-height: 50px;
-            font-size: 80%;
-            position: absolute;
-            right: 0;
-            text-align: center;
-            top: 0;
-            width: 70px;
-            text-decoration: none;
-        }
-
-        .modal-close:hover {
-            color: #000;
-        }
-
-        .modal-window h1 {
-            font-size: 150%;
-            margin: 0 0 15px;
-        }
-
-        table {
-            border-collapse: separate;
-            border-spacing: 0;
-        }
-
-        table,
-        td {
-            border: 1px solid black;
-            padding: 5px;
-        }
-
-        a {
-            color: blue;
-        }
-
-        h3 {
-            font-weight: normal;
-        }
-
-        #myTable span,
-        svg {
-            vertical-align: bottom;
-        }
-
-        .mastery {
-            display: none;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="assets/css/index.css">
     <title> Rocksmith 2014 Stats</title>
 </head>
 
@@ -284,6 +57,12 @@
         </div>
         <br/>
         <div class="tacenter">
+            <button class="random" id="filterPractice" onclick="javascript:show_practice_list();">
+                Show Practice List
+            </button>
+            <button class="random" onclick="javascript:open_modal('detailed-stats-modal');">
+                Detailed Stats
+            </button>
             <button class="random" onclick="javascript:show_random_song();">
                 Choose Random Song
             </button>
@@ -312,7 +91,7 @@
     </div>
     <div id="open-modal" class="modal-window">
         <div id="modal-info">
-            <a href="#" title="Close" class="modal-close" onclick="javascript:close_modal();">Close</a>
+            <a href="#" title="Close" class="modal-close" onclick="javascript:close_modal('open-modal');">Close</a>
             <h1 id="modal-song">Voilà!</h1>
             <h1 id="modal-artist">Voilà!</h1>
             <h1 id="modal-path">Path: </h1>
@@ -322,263 +101,197 @@
             </div>
             <br/>
             <br/>
-            <a href="#" id="select_pt" style="font-weight:bold">Playthrough</a> |
-            <a href="#" id="select_mv">Music Video</a>
-            <br/> Stats:
-            <span id="stats_span"></span>
+            <div style="float:left">
+                <a href="#" id="select_pt" style="font-weight:bold">Playthrough</a> |
+                <a href="#" id="select_mv">Music Video</a>
+                <br/> Stats:
+                <span id="stats_span"></span>
+            </div>
+            <div style="float:right">
+                <button class="sort" id="practiceListButton">
+                    Add to Practice List
+                </button>
+            </div>
+            <br/>
+            <br/>
+            <br/>
+        </div>
+    </div>
+    <div id="detailed-stats-modal" class="modal-window">
+        <div id="model-info">
+            <a href="#" title="Close" class="modal-close" onclick="javascript:close_modal('detailed-stats-modal');">Close</a>
+            <h2>Lead</h2>
+            <div>
+                <table id="myTable" style="width:80%">
+                    <tr>
+                        <td>Total</td>
+                        <td class="taleft">
+                            <span id="lead_total"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>95-100%</td>
+                        <td class="taleft">
+                            <span>
+                                <svg id="lead_tier_1_svg" height="20%">
+                                    <rect height="100%" style="fill:lightgreen;stroke-width:2;stroke:rgb(0,0,0)"></rect>
+                                    <text id="lead_tier_1_count" x='10' y='22' font-family='Iosevka' font-size='17px'></text>
+                                </svg>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>90-95%</td>
+                        <td class="taleft">
+                            <span>
+                                <svg id="lead_tier_2_svg" height="20%">
+                                    <rect height="100%" style="fill:#C8F749;stroke-width:2;stroke:rgb(0,0,0)"></rect>
+                                    <text id="lead_tier_2_count" x='10' y='22' font-family='Iosevka' font-size='17px'></text>
+                                </svg>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>1-90%</td>
+                        <td class="taleft">
+                            <span>
+                                <svg id="lead_tier_3_svg" height="20%">
+                                    <rect height="100%" style="fill:yellow;stroke-width:2;stroke:rgb(0,0,0)"></rect>
+                                    <text id="lead_tier_3_count" x='10' y='22' font-family='Iosevka' font-size='17px'></text>
+                                </svg>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Unplayed</td>
+                        <td class="taleft">
+                            <span>
+                                <svg id="lead_tier_4_svg" height="20%">
+                                    <rect height="100%" style="fill:lightgray;stroke-width:2;stroke:rgb(0,0,0)"></rect>
+                                    <text id="lead_tier_4_count" x='10' y='22' font-family='Iosevka' font-size='17px'></text>
+                                </svg>
+                            </span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <h2>Rhythm</h2>
+            <div>
+                <table id="myTable" style="width:80%">
+                    <tr>
+                        <td>Total</td>
+                        <td class="taleft">
+                            <span id="rhythm_total"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>95-100%</td>
+                        <td class="taleft">
+                            <span>
+                                <svg id="rhythm_tier_1_svg" height="20%">
+                                    <rect height="100%" style="fill:lightgreen;stroke-width:2;stroke:rgb(0,0,0)"></rect>
+                                    <text id="rhythm_tier_1_count" x='5' y='22' font-family='Iosevka' font-size='15px'></text>
+                                </svg>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>90-95%</td>
+                        <td class="taleft">
+                            <span>
+                                <svg id="rhythm_tier_2_svg" height="20%">
+                                    <rect height="100%" style="fill:#C8F749;stroke-width:2;stroke:rgb(0,0,0)"></rect>
+                                    <text id="rhythm_tier_2_count" x='5' y='22' font-family='Iosevka' font-size='15px'></text>
+                                </svg>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>1-90%</td>
+                        <td class="taleft">
+                            <span>
+                                <svg id="rhythm_tier_3_svg" height="20%">
+                                    <rect height="100%" style="fill:yellow;stroke-width:2;stroke:rgb(0,0,0)"></rect>
+                                    <text id="rhythm_tier_3_count" x='5' y='22' font-family='Iosevka' font-size='15px'></text>
+                                </svg>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Unplayed</td>
+                        <td class="taleft">
+                            <span>
+                                <svg id="rhythm_tier_4_svg" height="20%">
+                                    <rect height="100%" style="fill:lightgray;stroke-width:2;stroke:rgb(0,0,0)"></rect>
+                                    <text id="rhythm_tier_4_count" x='5' y='22' font-family='Iosevka' font-size='15px'></text>
+                                </svg>
+                            </span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <h2>Bass</h2>
+            <div>
+                <table id="myTable" style="width:80%">
+                    <tr>
+                        <td>Total</td>
+                        <td class="taleft">
+                            <span id="bass_total"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>95-100%</td>
+                        <td class="taleft">
+                            <span>
+                                <svg id="bass_tier_1_svg" height="20%">
+                                    <rect height="100%" style="fill:lightgreen;stroke-width:2;stroke:rgb(0,0,0)"></rect>
+                                    <text id="bass_tier_1_count" x='10' y='22' font-family='Iosevka' font-size='17px'></text>
+                                </svg>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>90-95%</td>
+                        <td class="taleft">
+                            <span>
+                                <svg id="bass_tier_2_svg" height="20%">
+                                    <rect height="100%" style="fill:#C8F749;stroke-width:2;stroke:rgb(0,0,0)"></rect>
+                                    <text id="bass_tier_2_count" x='10' y='22' font-family='Iosevka' font-size='17px'></text>
+                                </svg>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>1-90%</td>
+                        <td class="taleft">
+                            <span>
+                                <svg id="bass_tier_3_svg" height="20%">
+                                    <rect height="100%" style="fill:yellow;stroke-width:2;stroke:rgb(0,0,0)"></rect>
+                                    <text id="bass_tier_3_count" x='10' y='22' font-family='Iosevka' font-size='17px'></text>
+                                </svg>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Unplayed</td>
+                        <td class="taleft">
+                            <span>
+                                <svg id="bass_tier_4_svg" height="20%">
+                                    <rect height="100%" style="fill:lightgray;stroke-width:2;stroke:rgb(0,0,0)"></rect>
+                                    <text id="bass_tier_4_count" x='10' y='22' font-family='Iosevka' font-size='17px'></text>
+                                </svg>
+                            </span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
     <script src=" https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js "></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js "></script>
-    <script>
-        var options = {
-            valueNames: ['song', 'artist', 'mastery', 'count', 'arrangement'],
-            fuzzySearch: {
-                searchClass: "search ",
-                location: 0,
-                distance: 100,
-                threshold: 0.4,
-                multiSearch: true
-            }
-        };
-
-        var userList;
-        $(document).ready(function () {
-            userList = new List('tracks', options);
-            for (var i = 0; i < userList.items.length; i++) {
-                if (userList.items[i]._values.arrangement.toLowerCase().includes("lead"))
-                    lead.push(i)
-                else if (userList.items[i]._values.arrangement.toLowerCase().includes("rhythm"))
-                    rhythm.push(i)
-                else if (userList.items[i]._values.arrangement.toLowerCase().includes("bass"))
-                    bass.push(i)
-            }
-            $("#h3_stats").html("Arrangements: " + userList.items.length + " " + $("#h3_stats").html());
-
-        });
-        var lead = []
-        var rhythm = []
-        var bass = []
-
-        var filteron = false;
-        $("#filterrs1").click(function () {
-            filteron = !filteron;
-            $(this).html((filteron ? "Show " : "Hide ") + "RS1 Compat Tracks");
-
-            userList.filter(function (item) {
-                if (filteron) {
-                    if (item.values().artist.toLowerCase().includes("rs1")) {
-                        return false;
-                    } else {
-                        return true;
-                    }
-                }
-                else {
-                    return true;
-                }
-            })
-        });
-        $('#myTable tr').click(function () {
-            var trindex = $(this).index();
-            var song = $(this).find('td:first').text();
-            var artist = $(this).find('td:first').next().text();
-            var arrangement = $(this).find('td:first').next().next().text();
-            var count = $(this).find('td:first').next().next().next().next().text();
-            for (var i = 0; i < userList.items.length; i++) {
-                var searchitem = userList.items[i];
-                if (searchitem._values.song == song
-                    && searchitem._values.artist == artist
-                    && searchitem._values.arrangement == arrangement
-                    && searchitem._values.count == count) {
-                    create_modal(i);
-                    break;
-                }
-            }
-        });
-        $("#select_pt").on('click', function (e) {
-            $(this).css("font-weight", "Bold");
-            $("#select_mv").css("font-weight", "normal");
-            $("#div_playthrough").show();
-            $("#div_musicvideo").hide();
-            ptplayer.stopVideo();
-            mvplayer.stopVideo();
-        });
-        $("#select_mv").on('click', function (e) {
-            $(this).css("font-weight", "Bold");
-            $("#select_pt").css("font-weight", "normal");
-            $("#div_musicvideo").show();
-            $("#div_playthrough").hide();
-            ptplayer.stopVideo();
-            mvplayer.stopVideo();
-        });
-        function show_random_song() {
-            var songidx = get_random_song();
-            create_modal(songidx);
-        }
-        function update_stats_in_modal(song) {
-            name = song._values.song;
-            artist = song._values.artist
-            var arrangement = []
-            for (var i = 0; i < userList.items.length; i++) {
-                var searchitem = userList.items[i];
-                if (searchitem._values.song == name && searchitem._values.artist == artist) {
-                    arrangement.push(searchitem._values.arrangement + "____" + searchitem._values.mastery);
-                }
-            }
-            var str = "";
-            for (var index = 0; index < arrangement.length; index++) {
-                var marker = (index < arrangement.length - 1) ? " | " : "  ";
-                var arr = arrangement[index].split("____");
-                str += arr[0] + " " + (arr[1] == "-" ? "0%" : arr[1]) + marker;
-            }
-            $("#stats_span")[0].innerHTML = str;
-        }
-        function create_modal(songidx) {
-            var song = userList.items[songidx];
-            $("#modal-song")[0].innerHTML = "Song: " + song._values.song;
-            $("#modal-artist")[0].innerHTML = "Artist: " + song._values.artist;
-            $("#modal-path")[0].innerHTML = "Path: " + song._values.arrangement +
-                " | Mastery: " + ((song._values.mastery == "-") ? "0%" : song._values.mastery);
-            update_stats_in_modal(song)
-            var searchterm_pt = song._values.song + " " + song._values.artist + " rocksmith ";
-            var searchterm_mv = song._values.song + " " + song._values.artist + " music video "
-            getRequest(searchterm_pt, "div_playthrough");
-            getRequest(searchterm_mv, "div_musicvideo");
-            open_modal();
-        }
-        function open_modal() {
-            document.getElementById("open-modal").style.opacity = 1;
-            document.getElementById("open-modal").style.pointerEvents = "auto ";
-        }
-        function close_modal() {
-            document.getElementById("open-modal").style.opacity = 0;
-            document.getElementById("open-modal").style.pointerEvents = "none ";
-            ptplayer.stopVideo();
-            mvplayer.stopVideo();
-        }
-        function get_random_song() {
-            var prefer_lead = document.getElementById("lead").checked;
-            var prefer_rhythm = document.getElementById("rhythm").checked;
-            var prefer_bass = document.getElementById("bass").checked;
-
-            var pot = []
-            pot = pot.concat(lead)
-            pot = pot.concat(bass)
-            pot = pot.concat(rhythm)
-            if (prefer_lead)
-                pot = pot.concat(lead)
-            if (prefer_rhythm)
-                pot = pot.concat(rhythm)
-            if (prefer_bass)
-                pot = pot.concat(bass)
-
-            console.log("pot size: " + pot.length);
-            tries = 0;
-            match = false;
-            matchIdx = -1;
-            do {
-                var item = pot[Math.floor(Math.random() * pot.length)];
-                var itemInfo = userList.items[item];
-                var mastery = parseFloat(itemInfo._values.mastery);
-                if (mastery < 90) {
-                    console.log("selected " + itemInfo._values);
-                    match = true;
-                    matchIdx = item;
-                    break;
-                }
-                tries++;
-            } while (match == false && tries <= 10)
-
-            return matchIdx;
-        }
-        function getRequest(searchTerm, id) {
-            url = 'https://www.googleapis.com/youtube/v3/search';
-            var params = {
-                part: 'snippet',
-                key: 'AIzaSyAQPZZZVEH-lUTRuN4l2XF-zUB25eR45zo',
-                q: searchTerm
-            };
-            console.log("Searching " + searchTerm);
-
-            $.getJSON(url, params, function (searchTerm) {
-                showResults(searchTerm, id);
-            });
-        }
-        var ptId = "";
-        var mvid = "";
-        var ptplayer;
-        var mvplayer;
-        function showResults(results, id) {
-            var html = " ";
-            var entries = results.items;
-
-            if (entries.length > 0) {
-                var result = entries[0];
-                var vid = result.id.videoId;
-                console.log(vid);
-
-                player = new YT.Player(id, {
-                    height: '390',
-                    width: '640',
-                    videoId: vid,
-                    playerVars: {
-                        origin: "http://sandi.dev-gen-01.internal.fortmasongames.com",
-                        widget_referrer: "http://sandi.dev-gen-01.internal.fortmasongames.com",
-                        referrer: "http://sandi.dev-gen-01.internal.fortmasongames.com",
-                        autoPlay: 0
-                    },
-                    events: {
-                        'onReady': playerReady
-                    }
-                });
-                if (id == "div_playthrough") {
-                    ptid = vid;
-                    if (ptplayer) {
-                        ptplayer.loadVideoById(vid);
-                        ptplayer.stopVideo();
-                    } else {
-                        ptplayer = player;
-                    }
-                }
-                else {
-                    mvid = vid;
-                    if (mvplayer) {
-                        mvplayer.loadVideoById(vid);
-                        mvplayer.stopVideo();
-                    }
-                    else {
-                        mvplayer = player;
-                    }
-                }
-            }
-
-        }
-        function playerReady(event) {
-            if (event.target.a.id == "div_musicvideo")
-                event.target.loadVideoById(mvid);
-            else
-                event.target.loadVideoById(ptid);
-            event.target.stopVideo();
-        }
-        $(document).keyup(function (e) {
-            if (e.keyCode == 27) { // escape key maps to keycode `27`
-                close_modal();
-            }
-        });
-    </script>
-    <script>
-        var tag = document.createElement('script');
-
-        tag.src = "https://www.youtube.com/iframe_api";
-        var firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-        var player;
-        function onYouTubeIframeAPIReady() {
-
-        }
-
-    </script>
+    <script src="assets/js/index.js"></script>
+    <script src="assets/js/yt.js"></script>
+    <script src="assets/js/practicelist.js"></script>
 </body>
 
 </html>
