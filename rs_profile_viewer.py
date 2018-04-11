@@ -73,25 +73,28 @@ def print_html():
             notFound.append(id)
             continue
         SongDetails = SongCache[id]
-        datatowrite += "<tr><td class='song'>{}</td> <td class='artist'>{}</td> <td class='arrangement'>{}</td> <td class='mastery'>{}</td><td>".format(
+        roundedMastery = str(round(mastery, 1)) + "%"
+        datatowrite += "<tr><td class='song'>{}</td> <td class='artist'>{}</td> <td class='arrangement'>{}</td> <td><span class='mastery'>{}</span><span>".format(
             SongDetails["song"], SongDetails["artist"],
-            SongDetails["arrangement"],
-            str(round(mastery, 2)) + "%")
+            SongDetails["arrangement"], roundedMastery)
 
         if (mastery > 95):
-            datatowrite += "<svg width='100%' height='20%'><rect width='" + \
-                str(math.ceil(clip(0, mastery, 100))) + "%' height='100%' style='fill:lightgreen;stroke-width:2;stroke:rgb(0,0,0)'></rect></svg>" + "</td>"
+            datatowrite += "<svg height='20%'><rect width='" + \
+                str(math.ceil(clip(0, mastery, 100))) + "%' height='100%' style='fill:lightgreen;stroke-width:2;stroke:rgb(0,0,0)'></rect><text x='40%' y='22' font-family='Iosevka' font-size='17px' >" + roundedMastery + "</text></svg>"
         elif (mastery < 95 and mastery > 90):
-            datatowrite += "<svg width='100%' height='20%'><rect width='" + \
-                str(math.ceil(clip(0, mastery, 100))) + "%' height='100%' style='fill:#C8F749;stroke-width:2;stroke:rgb(0,0,0)'></rect></svg>" + "</td>"
+            datatowrite += "<svg height='20%'><rect width='" + \
+                str(math.ceil(clip(0, mastery, 100))) + "%' height='100%' style='fill:#C8F749;stroke-width:2;stroke:rgb(0,0,0)'></rect><text x='40%' y='22' font-family='Iosevka' font-size='17px'>" + roundedMastery + "</text></svg>"
+        elif (mastery < 10):
+            datatowrite += roundedMastery
         else:
-            datatowrite += "<svg width='100%' height='20%'><rect width='" + \
-                str(math.ceil(clip(0, mastery, 100))) + "%' height='100%' style='fill:yellow;stroke-width:2;stroke:rgb(0,0,0)'></rect></svg>" + "</td>"
+            datatowrite += "<svg height='20%'><rect width='" + \
+                str(math.ceil(clip(0, mastery, 100))) + "%' height='100%' style='fill:yellow;stroke-width:2;stroke:rgb(0,0,0)'></rect><text x='40%' y='22' font-family='Iosevka' font-size='17px'>" + roundedMastery + "</text></svg>"
 
         OtherStats = OtherStatCache[id] if id in OtherStatCache else {}
 
-        PlayedCount = OtherStats.get("PlayedCount", 0)
-        datatowrite += "<td class='count'>{}</td>".format(PlayedCount)
+        PlayedCount = round(OtherStats.get("PlayedCount", 0))
+        datatowrite += "</span></td><td class='count'>{}</td>".format(
+            PlayedCount)
 
         #end row
         datatowrite += "</tr>"
@@ -107,15 +110,15 @@ def print_html():
                 continue
 
             rs1dlc = SongDetails["dlc"] and (SongDetails["sku"] in ["RS1"])
-            datatowrite += "<tr><td class='song'>{}</td> <td class='artist'>{}</td> <td class='arrangement'>{}</td> <td class='mastery'>{}</td><td>".format(
+            datatowrite += "<tr><td class='song'>{}</td> <td class='artist'>{}</td> <td class='arrangement'>{}</td> <td><span class='mastery'>0</span><span>{}</span></td>".format(
                 SongDetails["song"],
                 (SongDetails["artist"] if not rs1dlc else
                  SongDetails["artist"] + " (RS1 Comptability DLC)"),
-                SongDetails["arrangement"], "-")
+                SongDetails["arrangement"], "0%")
 
             OtherStats = OtherStatCache[id] if id in OtherStatCache else {}
 
-            PlayedCount = OtherStats.get("PlayedCount", 0)
+            PlayedCount = round(OtherStats.get("PlayedCount", 0))
             datatowrite += "<td class='count'>{}</td>".format(PlayedCount)
 
             datatowrite += "</tr>"

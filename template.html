@@ -8,7 +8,7 @@
         }
 
         body {
-            zoom: 75%;
+            zoom: 82%;
         }
 
         html {
@@ -29,13 +29,13 @@
             margin-left: auto;
             margin-right: auto;
             margin: 0 auto;
-            width: 90%;
+            width: 80%;
         }
 
         #myTable th,
         #myTable td {
-            text-align: left;
-            padding: 12px;
+            text-align: center;
+            padding: 6px;
         }
 
         #myTable tr {
@@ -46,6 +46,10 @@
         #myTable tr:hover {
             background-color: #f1f1f1;
             cursor: pointer;
+        }
+
+        input[type='checkbox'] {
+            vertical-align: text-bottom;
         }
 
         .sort {
@@ -140,7 +144,7 @@
         }
 
         .tacenter {
-            text-align: center;
+            text-align: center !important;
         }
 
         .modal-window {
@@ -215,6 +219,15 @@
         h3 {
             font-weight: normal;
         }
+
+        #myTable span,
+        svg {
+            vertical-align: bottom;
+        }
+
+        .mastery {
+            display: none;
+        }
     </style>
     <title> Rocksmith 2014 Stats</title>
 </head>
@@ -288,10 +301,9 @@
             <tr class="header">
                 <th style="width:25%;">Song</th>
                 <th style="width:25%;">Artist</th>
-                <th style="width:12.5%;">Arrangement</th>
+                <th style="width:5.5%;">Arrangement</th>
                 <th style="width:12.5%;">Mastery</th>
-                <th style="width:12.5%;"></th>
-                <th style="width:12.5%;">Count</th>
+                <th style="width:5.5%">Count</th>
             </tr>
             <tbody class="list">
                 --INSERTMARKER--
@@ -330,19 +342,24 @@
             }
         };
 
-        var userList = new List('tracks', options);
+        var userList;
+        $(document).ready(function () {
+            userList = new List('tracks', options);
+            for (var i = 0; i < userList.items.length; i++) {
+                if (userList.items[i]._values.arrangement.toLowerCase().includes("lead"))
+                    lead.push(i)
+                else if (userList.items[i]._values.arrangement.toLowerCase().includes("rhythm"))
+                    rhythm.push(i)
+                else if (userList.items[i]._values.arrangement.toLowerCase().includes("bass"))
+                    bass.push(i)
+            }
+            $("#h3_stats").html("Arrangements: " + userList.items.length + " " + $("#h3_stats").html());
+
+        });
         var lead = []
         var rhythm = []
         var bass = []
-        for (var i = 0; i < userList.items.length; i++) {
-            if (userList.items[i]._values.arrangement.toLowerCase().includes("lead"))
-                lead.push(i)
-            else if (userList.items[i]._values.arrangement.toLowerCase().includes("rhythm"))
-                rhythm.push(i)
-            else if (userList.items[i]._values.arrangement.toLowerCase().includes("bass"))
-                bass.push(i)
-        }
-        $("#h3_stats").html("Arrangements: " + userList.items.length + " " + $("#h3_stats").html());
+
         var filteron = false;
         $("#filterrs1").click(function () {
             filteron = !filteron;
@@ -366,14 +383,12 @@
             var song = $(this).find('td:first').text();
             var artist = $(this).find('td:first').next().text();
             var arrangement = $(this).find('td:first').next().next().text();
-            var mastery = $(this).find('td:first').next().next().next().text();
-            var count = $(this).find('td:first').next().next().next().next().next().text();
+            var count = $(this).find('td:first').next().next().next().next().text();
             for (var i = 0; i < userList.items.length; i++) {
                 var searchitem = userList.items[i];
                 if (searchitem._values.song == song
                     && searchitem._values.artist == artist
                     && searchitem._values.arrangement == arrangement
-                    && searchitem._values.mastery == mastery
                     && searchitem._values.count == count) {
                     create_modal(i);
                     break;
@@ -410,7 +425,6 @@
                     arrangement.push(searchitem._values.arrangement + "____" + searchitem._values.mastery);
                 }
             }
-            console.log(arrangement);
             var str = "";
             for (var index = 0; index < arrangement.length; index++) {
                 var marker = (index < arrangement.length - 1) ? " | " : "  ";
@@ -466,13 +480,14 @@
                 var item = pot[Math.floor(Math.random() * pot.length)];
                 var itemInfo = userList.items[item];
                 var mastery = parseFloat(itemInfo._values.mastery);
-                console.log("selected " + itemInfo._values.song + "( " + itemInfo._values.arrangement + ") " + " by " + itemInfo._values.artist);
                 if (mastery < 90) {
+                    console.log("selected " + itemInfo._values);
                     match = true;
                     matchIdx = item;
+                    break;
                 }
                 tries++;
-            } while (match == false || tries >= 10)
+            } while (match == false && tries <= 10)
 
             return matchIdx;
         }
@@ -545,10 +560,6 @@
                 event.target.loadVideoById(ptid);
             event.target.stopVideo();
         }
-        userList.on("searchComplete", function (e) {
-        });
-        userList.on("sortComplete", function (e) {
-        });
         $(document).keyup(function (e) {
             if (e.keyCode == 27) { // escape key maps to keycode `27`
                 close_modal();
