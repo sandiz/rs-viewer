@@ -1,5 +1,5 @@
 var options = {
-    valueNames: ['song', 'artist', 'mastery', 'count', 'arrangement'],
+    valueNames: ['song', 'artist', 'mastery', 'count', 'arrangement', 'difficulty'],
     fuzzySearch: {
         searchClass: "search ",
         location: 0,

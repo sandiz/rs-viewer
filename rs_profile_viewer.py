@@ -24,7 +24,8 @@ Profile = {}
 MasteryCache = {}
 SongCache = {}
 OtherStatCache = {}
-DEVELOPER_KEY = os.environ["YT_DEV_KEY"] if "YT_DEV_KEY" in os.environ else None
+DEVELOPER_KEY = os.environ[
+    "YT_DEV_KEY"] if "YT_DEV_KEY" in os.environ else None
 YOUTUBE_API_SERVICE_NAME = 'youtube'
 YOUTUBE_API_VERSION = 'v3'
 CLIENT_SECRETS_FILE = 'client_secrets.json'
@@ -58,6 +59,21 @@ def clip(lo, x, hi):
     return lo if x <= lo else hi if x >= hi else x
 
 
+def get_diff_class(Difficulty):
+    diff = "diff_0"
+    if (Difficulty <= 20):
+        diff = "diff_0"
+    elif (Difficulty >= 21 and Difficulty <= 40):
+        diff = "diff_1"
+    elif (Difficulty >= 41 and Difficulty <= 60):
+        diff = "diff_2"
+    elif (Difficulty >= 61 and Difficulty <= 80):
+        diff = "diff_3"
+    elif (Difficulty >= 81):
+        diff = "diff_4"
+    return diff
+
+
 def print_html():
     global MasteryCache
     global SongCache
@@ -79,22 +95,25 @@ def print_html():
             SongDetails["arrangement"], roundedMastery)
 
         if (mastery > 95):
-            datatowrite += "<svg height='20%'><rect width='" + \
-                str(math.ceil(clip(0, mastery, 100))) + "%' height='100%' style='fill:lightgreen;stroke-width:2;stroke:rgb(0,0,0)'></rect><text x='40%' y='22' font-family='Iosevka' font-size='17px' >" + roundedMastery + "</text></svg>"
+            datatowrite += "<svg height='100%'><rect width='" + \
+                str(math.ceil(clip(0, mastery, 100))) + "%' height='100%' style='fill:lightgreen;stroke-width:2;stroke:rgb(0,0,0)'></rect><text x='40%' y='20' font-family='Iosevka' font-size='17px' >" + roundedMastery + "</text></svg>"
         elif (mastery < 95 and mastery > 90):
-            datatowrite += "<svg height='20%'><rect width='" + \
-                str(math.ceil(clip(0, mastery, 100))) + "%' height='100%' style='fill:#C8F749;stroke-width:2;stroke:rgb(0,0,0)'></rect><text x='40%' y='22' font-family='Iosevka' font-size='17px'>" + roundedMastery + "</text></svg>"
+            datatowrite += "<svg height='100%'><rect width='" + \
+                str(math.ceil(clip(0, mastery, 100))) + "%' height='100%' style='fill:#C8F749;stroke-width:2;stroke:rgb(0,0,0)'></rect><text x='40%' y='20' font-family='Iosevka' font-size='17px'>" + roundedMastery + "</text></svg>"
         elif (mastery < 10):
             datatowrite += roundedMastery
         else:
-            datatowrite += "<svg height='20%'><rect width='" + \
-                str(math.ceil(clip(0, mastery, 100))) + "%' height='100%' style='fill:yellow;stroke-width:2;stroke:rgb(0,0,0)'></rect><text x='40%' y='22' font-family='Iosevka' font-size='17px'>" + roundedMastery + "</text></svg>"
+            datatowrite += "<svg height='100%'><rect width='" + \
+                str(math.ceil(clip(0, mastery, 100))) + "%' height='100%' style='fill:yellow;stroke-width:2;stroke:rgb(0,0,0)'></rect><text x='40%' y='20' font-family='Iosevka' font-size='17px'>" + roundedMastery + "</text></svg>"
 
         OtherStats = OtherStatCache[id] if id in OtherStatCache else {}
 
         PlayedCount = round(OtherStats.get("PlayedCount", 0))
-        datatowrite += "</span></td><td class='count'>{}</td>".format(
-            PlayedCount)
+        Difficulty = round(SongDetails.get("difficulty", 0))
+        diff = get_diff_class(Difficulty)
+
+        datatowrite += "</span></td><td class='count'>{}</td><td title='{}' class='difficulty iconPreview' id='{}'><span class='hide'>{}</span></td>".format(
+            PlayedCount, Difficulty, diff, Difficulty)
 
         #end row
         datatowrite += "</tr>"
@@ -104,7 +123,9 @@ def print_html():
             SongDetails = SongCache[id]
             if not SongDetails['song']:
                 continue
-            if (SongDetails["artist"] in ["AAA Rocksmith"]):
+            if (SongDetails["artist"] in [
+                    "AAA Rocksmith", "Rocksmith", "Ubisoft"
+            ]):
                 continue
             if (SongDetails["arrangement"] in ["Vocals"]):
                 continue
@@ -119,7 +140,11 @@ def print_html():
             OtherStats = OtherStatCache[id] if id in OtherStatCache else {}
 
             PlayedCount = round(OtherStats.get("PlayedCount", 0))
-            datatowrite += "<td class='count'>{}</td>".format(PlayedCount)
+            Difficulty = round(SongDetails.get("difficulty", 0))
+            diff = get_diff_class(Difficulty)
+
+            datatowrite += "</span></td><td class='count'>{}</td><td title='{}' class='difficulty iconPreview' id='{}'><span class='hide'>{}</span></td>".format(
+                PlayedCount, Difficulty, diff, Difficulty)
 
             datatowrite += "</tr>"
 
@@ -220,6 +245,8 @@ def read_psarc():
                         songDict["psarc"] = psarc
                         songDict["dlc"] = data.get("DLC", False)
                         songDict["sku"] = data.get("SKU", "")
+                        songDict["difficulty"] = data.get("SongDifficulty",
+                                                          0) * 100
                         SongCache[id] = songDict
 
     songCacheFile = open("SongCache.pickle", "wb")
