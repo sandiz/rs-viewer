@@ -119,7 +119,7 @@ $('#myTable tr').click(function () {
     for (var i = 0; i < userList.items.length; i++) {
         var searchitem = userList.items[i];
         if (searchitem._values.song == song
-            && searchitem._values.artist == artist
+            && searchitem._values.artist.localeCompare(convert(artist), "en", { ignorePunctuation: true }) == 0
             && searchitem._values.arrangement == arrangement
             && searchitem._values.count == count) {
             create_modal(i);
@@ -127,6 +127,15 @@ $('#myTable tr').click(function () {
         }
     }
 });
+function convert(str) {
+    str = str.replace(/&/g, "&amp;");
+    str = str.replace(/>/g, "&gt;");
+    str = str.replace(/</g, "&lt;");
+    str = str.replace(/"/g, "&quot;");
+    str = str.replace(/'/g, "&#039;");
+    return str;
+}
+
 $("#select_pt").on('click', function (e) {
     $(this).css("font-weight", "Bold");
     $("#select_mv").css("font-weight", "normal");
