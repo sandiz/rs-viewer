@@ -198,6 +198,51 @@
         .modal-close:hover {
             color: #000;
         }
+        .modal-50 {
+            color: #aaa;
+            line-height: 50px;
+            font-size: 80%;
+            position: absolute;
+            right: 40;
+            text-align: center;
+            top: 0;
+            width: 70px;
+            text-decoration: none;
+        }
+
+        .modal-50:hover {
+            color: #000;
+        }
+        .modal-100 {
+            color: #aaa;
+            line-height: 50px;
+            font-size: 80%;
+            position: absolute;
+            right: 80;
+            text-align: center;
+            top: 0;
+            width: 70px;
+            text-decoration: none;
+        }
+
+        .modal-100:hover {
+            color: #000;
+        }
+        .modal-reset {
+            color: #aaa;
+            line-height: 50px;
+            font-size: 80%;
+            position: absolute;
+            right: 120;
+            text-align: center;
+            top: 0;
+            width: 70px;
+            text-decoration: none;
+        }
+
+        .modal-reset:hover {
+            color: #000;
+        }
 
         .modal-window h1 {
             font-size: 150%;

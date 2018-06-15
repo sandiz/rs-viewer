@@ -95,13 +95,16 @@
     </div>
     <div id="open-modal" class="modal-window">
         <div id="modal-info">
+            <a href="#" title="Fullscreen" class="modal-reset" onclick="javascript:zoomby('0');">Reset</a>
+            <a href="#" title="Fullscreen" class="modal-100" onclick="javascript:zoomby('100%');">100%</a>
+            <a href="#" title="Fullscreen" class="modal-50" onclick="javascript:zoomby('80%');">75%</a>
             <a href="#" title="Close" class="modal-close" onclick="javascript:close_modal('open-modal');">Close</a>
             <h1 id="modal-song">Voilà!</h1>
             <h1 id="modal-artist">Voilà!</h1>
             <h1 id="modal-path">Path: </h1>
-            <div id="div_playthrough">
+            <div id="div_playthrough" style="width:100%;">
             </div>
-            <div id="div_musicvideo" style="display:None">
+            <div id="div_musicvideo" style="display:None; width:100%;;">
             </div>
             <br/>
             <br/>

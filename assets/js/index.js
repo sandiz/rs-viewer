@@ -4,7 +4,7 @@ var options = {
         searchClass: "search ",
         location: 0,
         distance: 100,
-        threshold: 0.4,
+        threshold: 0.2,
         multiSearch: true
     }
 };
@@ -325,4 +325,24 @@ function reset_all_filters() {
 
     $("#filterPractice").html("Show Practice List");
     $("#filterPractice").css("background-color", "#28a8e0");
+}
+function zoomby(percent) {
+    console.log("zooming by" + percent);
+    if (percent == "0") {
+        $("#div_playthrough").css('height', "");
+        $("#div_musicvideo").css('height', "");
+        $("#modal-info").css('width', "");
+        $("#modal-info").css('height', "");
+        $("#modal-info").css('margin', "10% auto");
+    }
+    else {
+        $("#div_playthrough").css('height', "80%");
+        $("#div_musicvideo").css('height', "80%");
+        $("#modal-info").css('width', percent)
+        $("#modal-info").css('height', percent)
+        if (percent == "100%")
+            $("#modal-info").css('margin', "0% auto");
+        else
+            $("#modal-info").css('margin', "5% auto");
+    }
 }
