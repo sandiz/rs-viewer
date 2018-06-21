@@ -1,6 +1,6 @@
 import json
 import datetime
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 from time import sleep
 
 class SteamError(Exception):
@@ -37,11 +37,11 @@ class SteamAPI:
 
         """
         try:
-            return urllib2.urlopen(url)
-        except urllib2.URLError as e:
-            print ('URLError = ' + str(e.reason))
-        except urllib2.HTTPError as e:
-            print ('HTTPError = ' + str(e.code))
+            return urllib.request.urlopen(url)
+        except urllib.error.URLError as e:
+            print(('URLError = ' + str(e.reason)))
+        except urllib.error.HTTPError as e:
+            print(('HTTPError = ' + str(e.code)))
             return self._retry(self, url, self.time, self.tries)
         except ValueError as e:
             print ('Not a proper URL')
@@ -50,10 +50,10 @@ class SteamAPI:
 
     def _retry(self, url):
         """Retries your request n number of times"""
-        print ("{} is unreachable, retrying {} number of times".format(url, self.retries))
+        print(("{} is unreachable, retrying {} number of times".format(url, self.retries)))
         for num in range(self.retries):
             try:
-                return urllib2.urlopen(url)
+                return urllib.request.urlopen(url)
             except:
                 sleep(self.time)
         raise SteamError('Can\'t connect to Steam. Try again later.')

@@ -5,7 +5,7 @@ Retrieves information about Steam users from the Steam API.
 
 import json
 import re
-from SteamBase import SteamAPI
+from .SteamBase import SteamAPI
 from bs4 import BeautifulSoup
 
 

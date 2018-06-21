@@ -7,9 +7,9 @@ http://steamdb.info/blog/5/
 
 """
 
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import json
-from SteamBase import SteamAPI
+from .SteamBase import SteamAPI
 
 
 class Games(SteamAPI):
@@ -38,7 +38,7 @@ class Games(SteamAPI):
         """Given a list of appids, creates an API url to retrieve them"""
         appids = ','.join([str(x) for x in appids])
         data = {'appids': appids, 'cc': cc, 'l': 'english', 'v': '1'}
-        return "http://store.steampowered.com/api/appdetails/?{}".format(urllib.urlencode(data))
+        return "http://store.steampowered.com/api/appdetails/?{}".format(urllib.parse.urlencode(data))
 
     def _get_urls(self, appids, cc):
         """Returns urls for all of appids"""
@@ -55,7 +55,7 @@ class Games(SteamAPI):
         """
         if self.appids_to_names is None or self.names_to_appids is None:
             self.appids_to_names, self.names_to_appids = self.get_ids_and_names()
-        urls = self._get_urls(self.appids_to_names.keys(), cc)
+        urls = self._get_urls(list(self.appids_to_names.keys()), cc)
         for url in urls:
             for game in self._get_games_from(url):
                 yield game
@@ -106,7 +106,7 @@ class Games(SteamAPI):
 
     def _chunks(self, params, number):
         """Breaks a list into a set of equally sized chunked lists, with remaining entries in last list"""
-        for i in xrange(0, len(params), number):
+        for i in range(0, len(params), number):
             yield params[i:i+number]
 
 
@@ -178,7 +178,7 @@ class Game(SteamAPI):
                     self.categories = None
 
         else:
-            print ("Error! Can't read the game info for {}".format(appid))
+            print(("Error! Can't read the game info for {}".format(appid)))
 
     def _calc_price(self, amount):
         """Prices from the API are represented by cents -- convert to dollars"""

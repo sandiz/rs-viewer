@@ -6,7 +6,7 @@ items in the store at once.
 
 """
 
-from SteamBase import SteamAPI
+from .SteamBase import SteamAPI
 
 class BadGameException(Exception):
     """Raised when the game passed in is not TF2 or Dota2 (or in a bad format)"""
