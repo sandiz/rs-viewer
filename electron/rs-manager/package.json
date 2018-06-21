@@ -1,13 +1,42 @@
 {
   "name": "rs-manager",
-  "version": "1.0.0",
-  "description": "Rocksmith Manager",
-  "main": "main.js",
-  "scripts": {
-    "start": "electron ."
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "electron": "^2.0.3",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.12.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.9.1",
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1",
+    "react-scripts": "1.1.4"
   },
-  "author": "Sandi Chakravarty",
+  "scripts": {
+    "start": "nf start -p 3000",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "electron": "electron .",
+    "electron-start": "node src/electron-wait-react",
+    "react-start": "react-scripts start | cat",
+    "pack": "build --dir",
+    "dist": "npm run build && build",
+    "postinstall": "install-app-deps"
+  },
   "devDependencies": {
-    "electron": "^2.0.0"
+    "electron-builder": "^20.15.1"
+  },
+  "homepage": "./",
+  "main": "src/electron-starter.js",
+  "build": {
+    "appId": "com.sandi.rsmanager",
+    "win": {
+      "iconUrl": "./src/assets/icon.jpg"
+    },
+    "directories": {
+      "buildResources": "public"
+    }
   }
 }
