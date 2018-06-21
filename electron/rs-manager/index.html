@@ -1,0 +1,304 @@
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="assets/css/index.css">
+    <title> Rocksmith 2014 Stats</title>
+</head>
+
+<body>
+    <h2 style="text-align:center">
+        Rocksmith 2014 Stats</h2>
+    <h3 style="text-align:center" id="h3_stats">
+        --STATSMARKER--
+    </h3>
+    <div id="tracks">
+        <div class="tacenter">
+            Useful Links:
+            <span>
+                <a target="_blank" href="https://www.twitch.tv/directory/game/Rocksmith 2014">Rocksmith Streams</a>
+            </span>
+            <span>
+                <a target="_blank" href="https://www.twitch.tv/rocksmithgame">Ubisoft SF (Twitch)</a>
+            </span>
+            <span>
+                <a target="_blank" href="https://www.reddit.com/r/rocksmith">/r/rocksmith</a>
+            </span>
+            <span>
+                <a target="_blank" href="https://theriffrepeater.com/">The Riff Repeater</a>
+            </span>
+            <span>
+                <a target="_blank" href="https://www.youtube.com/channel/UCQQ8yAmq2d-zLsqTOV7Uf_g">TRR (YouTube)</a>
+            </span>
+        </div>
+        <br>
+        <div class="tacenter">
+            <input class="search" placeholder="Search" />
+        </div>
+        <br/>
+        <div class="tacenter">
+            <button class="sort" data-sort="song">
+                Sort by Song
+            </button>
+            <button class="sort" data-sort="artist">
+                Sort by Artist
+            </button>
+            <button class="sort" data-sort="mastery">
+                Sort by Mastery
+            </button>
+            <button class="sort" data-sort="count">
+                Sort by PlayedCount
+            </button>
+            <button class="sort" data-sort="arrangement">
+                Sort by Arrangement
+            </button>
+            <button class="sort" data-sort="difficulty">
+                Sort by Difficulty
+            </button>
+        </div>
+        <br/>
+        <div class="tacenter">
+            <button class="random" id="filterrs1">
+                Hide RS1 Compat Tracks
+            </button>
+            <button class="random" id="filterPractice" onclick="javascript:show_practice_list();">
+                Show Practice List
+            </button>
+            <button class="random" onclick="javascript:open_modal('detailed-stats-modal');">
+                Detailed Stats
+            </button>
+            <button class="random" onclick="javascript:show_random_song();">
+                Choose Random Song
+            </button>
+            <span>Prefer:
+                <input type="checkbox" id="lead" checked/>
+                <label for="lead">Lead</label>
+                <input type="checkbox" id="rhythm" />
+                <label for="rhythm">Rhythm</label>
+                <input type="checkbox" id="bass" />
+                <label for="bass">Bass</label>
+            </span>
+        </div>
+        <br/>
+        <table id="myTable">
+            <tr class="header">
+                <th style="width:25%;">Song</th>
+                <th style="width:25%;">Artist</th>
+                <th style="width:5.5%;">Arrangement</th>
+                <th style="width:12.5%;">Mastery</th>
+                <th style="width:5.5%">Count</th>
+                <th style="width:5.5%">Difficulty</th>
+            </tr>
+            <tbody class="list">
+                --INSERTMARKER--
+            </tbody>
+        </table>
+    </div>
+    <div id="open-modal" class="modal-window">
+        <div id="modal-info">
+            <a href="#" title="Fullscreen" class="modal-reset" onclick="javascript:zoomby('0');">Reset</a>
+            <a href="#" title="Fullscreen" class="modal-100" onclick="javascript:zoomby('100%');">100%</a>
+            <a href="#" title="Fullscreen" class="modal-50" onclick="javascript:zoomby('80%');">75%</a>
+            <a href="#" title="Close" class="modal-close" onclick="javascript:close_modal('open-modal');">Close</a>
+            <h1 id="modal-song">Voilà!</h1>
+            <h1 id="modal-artist">Voilà!</h1>
+            <h1 id="modal-path">Path: </h1>
+            <div id="div_playthrough" style="width:100%;">
+            </div>
+            <div id="div_musicvideo" style="display:None; width:100%;;">
+            </div>
+            <br/>
+            <br/>
+            <div style="float:left">
+                <a href="#" id="select_pt" style="font-weight:bold">Playthrough</a> |
+                <a href="#" id="select_mv">Music Video</a>
+                <br/> Stats:
+                <span id="stats_span"></span>
+            </div>
+            <div style="float:right">
+                <button class="sort" id="practiceListButton">
+                    Add to Practice List
+                </button>
+            </div>
+            <br/>
+            <br/>
+            <br/>
+        </div>
+    </div>
+    <div id="detailed-stats-modal" class="modal-window">
+        <div id="model-info">
+            <a href="#" title="Close" class="modal-close" onclick="javascript:close_modal('detailed-stats-modal');">Close</a>
+            <h2>Lead</h2>
+            <div>
+                <table id="myTable" style="width:80%">
+                    <tr>
+                        <td>Total</td>
+                        <td class="taleft">
+                            <span id="lead_total"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>95-100%</td>
+                        <td class="taleft">
+                            <span>
+                                <svg id="lead_tier_1_svg" height="100%">
+                                    <rect height="100%" style="fill:lightgreen;stroke-width:2;stroke:rgb(0,0,0)"></rect>
+                                    <text id="lead_tier_1_count" x='10' y='20' font-family='Iosevka' font-size='17px'></text>
+                                </svg>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>90-95%</td>
+                        <td class="taleft">
+                            <span>
+                                <svg id="lead_tier_2_svg" height="100%">
+                                    <rect height="100%" style="fill:#C8F749;stroke-width:2;stroke:rgb(0,0,0)"></rect>
+                                    <text id="lead_tier_2_count" x='10' y='20' font-family='Iosevka' font-size='17px'></text>
+                                </svg>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>1-90%</td>
+                        <td class="taleft">
+                            <span>
+                                <svg id="lead_tier_3_svg" height="100%">
+                                    <rect height="100%" style="fill:yellow;stroke-width:2;stroke:rgb(0,0,0)"></rect>
+                                    <text id="lead_tier_3_count" x='10' y='20' font-family='Iosevka' font-size='17px'></text>
+                                </svg>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Unplayed</td>
+                        <td class="taleft">
+                            <span>
+                                <svg id="lead_tier_4_svg" height="100%">
+                                    <rect height="100%" style="fill:lightgray;stroke-width:2;stroke:rgb(0,0,0)"></rect>
+                                    <text id="lead_tier_4_count" x='10' y='20' font-family='Iosevka' font-size='17px'></text>
+                                </svg>
+                            </span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <h2>Rhythm</h2>
+            <div>
+                <table id="myTable" style="width:80%">
+                    <tr>
+                        <td>Total</td>
+                        <td class="taleft">
+                            <span id="rhythm_total"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>95-100%</td>
+                        <td class="taleft">
+                            <span>
+                                <svg id="rhythm_tier_1_svg" height="100%">
+                                    <rect height="100%" style="fill:lightgreen;stroke-width:2;stroke:rgb(0,0,0)"></rect>
+                                    <text id="rhythm_tier_1_count" x='5' y='20' font-family='Iosevka' font-size='15px'></text>
+                                </svg>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>90-95%</td>
+                        <td class="taleft">
+                            <span>
+                                <svg id="rhythm_tier_2_svg" height="100%">
+                                    <rect height="100%" style="fill:#C8F749;stroke-width:2;stroke:rgb(0,0,0)"></rect>
+                                    <text id="rhythm_tier_2_count" x='5' y='20' font-family='Iosevka' font-size='15px'></text>
+                                </svg>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>1-90%</td>
+                        <td class="taleft">
+                            <span>
+                                <svg id="rhythm_tier_3_svg" height="100%">
+                                    <rect height="100%" style="fill:yellow;stroke-width:2;stroke:rgb(0,0,0)"></rect>
+                                    <text id="rhythm_tier_3_count" x='5' y='20' font-family='Iosevka' font-size='15px'></text>
+                                </svg>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Unplayed</td>
+                        <td class="taleft">
+                            <span>
+                                <svg id="rhythm_tier_4_svg" height="100%">
+                                    <rect height="100%" style="fill:lightgray;stroke-width:2;stroke:rgb(0,0,0)"></rect>
+                                    <text id="rhythm_tier_4_count" x='5' y='20' font-family='Iosevka' font-size='15px'></text>
+                                </svg>
+                            </span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <h2>Bass</h2>
+            <div>
+                <table id="myTable" style="width:80%">
+                    <tr>
+                        <td>Total</td>
+                        <td class="taleft">
+                            <span id="bass_total"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>95-100%</td>
+                        <td class="taleft">
+                            <span>
+                                <svg id="bass_tier_1_svg" height="100%">
+                                    <rect height="100%" style="fill:lightgreen;stroke-width:2;stroke:rgb(0,0,0)"></rect>
+                                    <text id="bass_tier_1_count" x='10' y='20' font-family='Iosevka' font-size='17px'></text>
+                                </svg>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>90-95%</td>
+                        <td class="taleft">
+                            <span>
+                                <svg id="bass_tier_2_svg" height="100%">
+                                    <rect height="100%" style="fill:#C8F749;stroke-width:2;stroke:rgb(0,0,0)"></rect>
+                                    <text id="bass_tier_2_count" x='10' y='20' font-family='Iosevka' font-size='17px'></text>
+                                </svg>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>1-90%</td>
+                        <td class="taleft">
+                            <span>
+                                <svg id="bass_tier_3_svg" height="100%">
+                                    <rect height="100%" style="fill:yellow;stroke-width:2;stroke:rgb(0,0,0)"></rect>
+                                    <text id="bass_tier_3_count" x='10' y='20' font-family='Iosevka' font-size='17px'></text>
+                                </svg>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Unplayed</td>
+                        <td class="taleft">
+                            <span>
+                                <svg id="bass_tier_4_svg" height="100%">
+                                    <rect height="100%" style="fill:lightgray;stroke-width:2;stroke:rgb(0,0,0)"></rect>
+                                    <text id="bass_tier_4_count" x='10' y='20' font-family='Iosevka' font-size='17px'></text>
+                                </svg>
+                            </span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src=" https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js "></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js "></script>
+    <script src="assets/js/index.js"></script>
+    <script src="assets/js/yt.js"></script>
+    <script src="assets/js/practicelist.js"></script>
+</body>
+
+</html>

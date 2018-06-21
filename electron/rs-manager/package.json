@@ -1,0 +1,13 @@
+{
+  "name": "rs-manager",
+  "version": "1.0.0",
+  "description": "Rocksmith Manager",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Sandi Chakravarty",
+  "devDependencies": {
+    "electron": "^2.0.0"
+  }
+}
