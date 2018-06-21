@@ -23,10 +23,12 @@
     "react-start": "react-scripts start | cat",
     "pack": "build --dir",
     "dist": "npm run build && build",
-    "postinstall": "install-app-deps"
+    "postinstall": "install-app-deps",
+    "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=src/assets/icons/mac/mac.icns --prune=true --out=release-builds"
   },
   "devDependencies": {
-    "electron-builder": "^20.15.1"
+    "electron-builder": "^20.15.1",
+    "electron-packager": "^12.1.0"
   },
   "homepage": "./",
   "main": "src/electron-starter.js",

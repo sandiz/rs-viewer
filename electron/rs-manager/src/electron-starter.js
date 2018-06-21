@@ -8,7 +8,13 @@ const url = require('url')
 let mainWindow
 
 function createWindow() {
-    mainWindow = new BrowserWindow({ width: 800, height: 600 })
+    mainWindow = new BrowserWindow(
+        {
+            width: 800,
+            height: 600,
+            icon: path.join(__dirname, './icons/png/icon-1024x1024.png')
+
+        })
     mainWindow.maximize();
     mainWindow.loadURL(
         process.env.ELECTRON_START_URL ||
