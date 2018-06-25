@@ -10,16 +10,27 @@ class App extends Component {
       currentTab: null,
       currentChildTab: null,
       showSidebar: true,
+      appTitle: '',
     };
-    this.handleChange = this.handleChange.bind(this);
+    //this.handleChange = this.handleChange.bind(this);
   }
-  handleChange(tab, child) {
-    this.setState({ currentTab: tab, currentChildTab: child });
+  handleChange = (tab, child) => {
+    const text = (tab == null) ? "" : tab.name +
+      (child == null ? "" : ` >  ${child.name}`);
+    this.setState({ currentTab: tab, currentChildTab: child, appTitle: text });
   }
-  collapseSidebar() {
+  updateHeader = (text) => {
+    this.setState({ appTitle: text });
+  }
+  resetHeader = () => {
+    if (this.state.currentTab != null) {
+      this.handleChange(this.state.currentTab, this.state.currentChildTab);
+    }
+  }
+  collapseSidebar = () => {
     this.setState({ showSidebar: !this.state.showSidebar });
   }
-  render() {
+  render = () => {
     return (
       <div className="App">
         <div className="wrapper">
@@ -65,12 +76,7 @@ class App extends Component {
                     <li className="nav-item active">
                       <h2>
                         <a href="#tab-name" className="">
-                          {this.state.currentTab == null
-                            ? ""
-                            : this.state.currentTab.name +
-                            (this.state.currentChildTab == null
-                              ? ""
-                              : ` >  ${this.state.currentChildTab.name}`)}
+                          {this.state.appTitle}
                         </a>
                       </h2>
                     </li>
@@ -79,7 +85,10 @@ class App extends Component {
               </div>
             </nav>
             <div>
-              <PSARCView currentTab={this.state.currentTab} />
+              <PSARCView
+                currentTab={this.state.currentTab}
+                updateHeader={this.updateHeader}
+                resetHeader={this.resetHeader} />
             </div>
           </div>
         </div>

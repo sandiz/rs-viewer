@@ -1,8 +1,7 @@
 import React from 'react'
 import BootstrapTable from 'react-bootstrap-table-next'
 import PropTypes from 'prop-types';
-
-const path = require('path')
+import readPSARC from '../fileservice';
 
 const { remote } = window.require('electron')
 function sizeFormatter(cell, row) {
@@ -43,44 +42,55 @@ export default class PSARCView extends React.Component {
       files: [],
     };
   }
-  async openDirDialog() {
+  openDirDialog = async () => {
     const dirs = remote.dialog.showOpenDialog({
       properties: ["openDirectory"],
     });
-    console.log(this);
-    console.log(dirs);
-    //console.log(requireTaskPool);
-    //const fileservice = requireTaskPool("../fileservice.js");
-    //console.log(await fileservice(dirs));
-    // var files = this.walkSync(dirs[0] + "/", null);
-    // this.setState({ files: files });
-    // console.log(Object.values(files));
-    // let result = await fileService.readDir(dirs);
-    // console.log(result);
+    const results = this.walkSync(dirs[0] + "/", null);
+    console.log("psarc found: " + results.length);
+    this.psarcRead(results);
   }
 
-  walkSync(dir, filelist) {
+  walkSync = (dir, results) => {
     const fs = remote.require("fs");
     const files = fs.readdirSync(dir);
 
-    filelist = filelist || [];
-    files.forEach((file) => {
+    results = results || [];
+    for (let i = 0; i < files.length; i += 1) {
+      const file = files[i];
       const statres = fs.statSync(dir + file);
       if (statres.isDirectory()) {
-        filelist = this.walkSync(dir + file + "/", filelist);
+        //filelist = this.walkSync(dir + file + "/", filelist);
+        results = this.walkSync(dir + file + "/", results);
       } else {
         if (file.endsWith("_m.psarc")) {
-          filelist[path.basename(file, ".psarc")] = {
-            name: file,
-            size: statres.size,
-            created: statres.ctimeMs,
-            artist: "",
-            song: "",
-          };
+          results.push(readPSARC(file, statres, (500 + (i * 100))));
         }
       }
+    }
+    return results;
+  }
+  psarcRead = async (results) => {
+    const count = results.length;
+    let index = 1;
+    await results.reduce((promiseChain, currentTask) => {
+      return promiseChain.then((chainResults) => {
+        currentTask.then((currentResult) => {
+          //[...chainResults, currentResult]
+          const currFiles = this.state.files;
+          currFiles.push(currentResult);
+          this.setState({ files: currFiles });
+          this.props.updateHeader(`Processed PSARC:  ${currentResult.name} (${index}/${count})`);
+          if (index >= count) {
+            this.props.resetHeader();
+          }
+          index += 1
+        })
+      });
+    }, Promise.resolve([])).then((arrayOfResults) => {
+      // Do something with all results
+      this.props.resetHeader();
     });
-    return filelist;
   }
   render = () => {
     if (this.props.currentTab === null) {
@@ -111,7 +121,11 @@ export default class PSARCView extends React.Component {
 }
 PSARCView.propTypes = {
   currentTab: PropTypes.object,
+  updateHeader: PropTypes.func,
+  resetHeader: PropTypes.func,
 }
 PSARCView.defaultProps = {
   currentTab: null,
+  updateHeader: () => { },
+  resetHeader: () => { },
 }
