@@ -13,11 +13,7 @@ async function getSongDetails(psarc) {
     const json = JSON.parse(bl.toString());
     json.arrangements.forEach((arr) => {
       if (arr.song !== '' && arr.artist !== '') {
-        const songDetails = {};
-        songDetails.song = arr.song
-        songDetails.artist = arr.artist
-        songDetails.arrangement = arr.arrangement
-        arrangementarr.push(songDetails);
+        arrangementarr.push(arr);
       }
     });
   }
@@ -66,18 +62,17 @@ export default async function readPSARC(psarc, statResult, sleepms) {
   //await sleep(sleepms);
   const ret = await getSongDetails(psarc);
   const psarcData = []
-  let count = 1
   ret.forEach((item) => {
     const psarchBlurb = {
       filename: psarc,
-      name: path.basename(psarc, ".psarc") + "_" + count,
+      name: path.basename(psarc, ".psarc"),
       size: statResult.size,
       created: statResult.ctimeMs,
       artist: item.artist,
       song: item.song,
       arrangement: item.arrangement,
+      id: item.id,
     };
-    count += 1
     psarcData.push(psarchBlurb);
   })
   return psarcData;

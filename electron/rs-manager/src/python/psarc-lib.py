@@ -1,5 +1,5 @@
 from lib.rocksmith import PSARC
-import json, struct, zlib, getopt, math, sys, traceback, os, time
+import json, struct, zlib, getopt, math, sys, traceback, os, time, random, string
 
 
 def extract_file(psarc, fileToExtract):
@@ -47,6 +47,12 @@ def read_psarc(psarc):
                     songDict["sku"] = data.get("SKU", "")
                     songDict["difficulty"] = data.get("SongDifficulty",
                                                       0) * 100
+                    songDict["dlckey"] = data.get("DLCKey", "")
+                    songDict["songkey"] = data.get("SongKey", "")
+                    songDict["id"] = data.get(
+                        "PersistentID", ''.join(
+                            random.choices(
+                                string.ascii_uppercase + string.digits, k=10)))
                     arrangments.append(songDict)
 
     psarcData["key"] = os.path.splitext(os.path.basename(psarc))[0]

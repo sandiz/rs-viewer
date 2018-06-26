@@ -4,7 +4,7 @@ import paginationFactory from 'react-bootstrap-table2-paginator';
 import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
 
 import PropTypes from 'prop-types';
-import readPSARC, { psarcToJSON, extractFile } from '../fileservice';
+import readPSARC, { psarcToJSON, extractFile } from '../psarcservice';
 
 
 const { remote } = window.require('electron')
@@ -15,6 +15,17 @@ function dateFormatter(cell, row) {
   return <span>{new Date(cell).toLocaleDateString()}</span>;
 }
 const columns = [
+  {
+    dataField: "id",
+    text: "ID",
+    style: (cell, row, rowIndex, colIndex) => {
+      return {
+        width: '25%',
+        cursor: 'pointer',
+      };
+    },
+    hidden: true,
+  },
   {
     dataField: "song",
     text: "Song",
@@ -205,6 +216,7 @@ export default class PSARCView extends React.Component {
   }
   render = () => {
     const stopprocessingstyle = this.state.processing ? "" : "none";
+    const hasdatastyle = this.state.processing === false && this.state.files.length > 0 ? "" : "none";
     const choosepsarchstyle = "extraPadding download " + (this.state.processing ? "isDisabled" : "");
     const psarcdetailsstyle = "modal-window " + (this.state.showpsarcDetail ? "" : "hidden");
     const options = {
@@ -236,10 +248,16 @@ export default class PSARCView extends React.Component {
               style={{ display: `${stopprocessingstyle}` }}>
               Force Generate View
             </a>
+            <a
+              onClick={this.forceViewUpdate}
+              className="extraPadding download"
+              style={{ display: `${hasdatastyle}` }}>
+              Update Songlist (Owned)
+            </a>
           </div>
           <div>
             <BootstrapTable
-              keyField="name"
+              keyField="id"
               data={this.state.files}
               columns={columns}
               classes="psarcTable"
