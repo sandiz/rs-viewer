@@ -1,5 +1,5 @@
 window.ipcRenderer = require("electron").ipcRenderer;
-window.electronRemote = require('electron-remote');
+window.shell = require("electron").shell;
 window.spawn = require("await-spawn");
 window.dirname = __dirname;
 

@@ -4,7 +4,7 @@ import paginationFactory from 'react-bootstrap-table2-paginator';
 import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
 
 import PropTypes from 'prop-types';
-import readPSARC, { psarcToJSON } from '../fileservice';
+import readPSARC, { psarcToJSON, extractFile } from '../fileservice';
 
 
 const { remote } = window.require('electron')
@@ -114,6 +114,8 @@ export default class PSARCView extends React.Component {
       abortprocessing: false,
       showpsarcDetail: false,
       selectedpsarcData: null,
+      selectedFileName: "",
+      showSearch: false,
     };
     this.rowEvents = {
       onClick: (e, row, rowIndex) => {
@@ -186,12 +188,37 @@ export default class PSARCView extends React.Component {
   stopProcessing = async () => {
     this.setState({ files: this.processedFiles, abortprocessing: true });
   }
+  extract = async (file, psarc) => {
+    const res = await extractFile(psarc, file)
+    console.log(res)
+    window.shell.showItemInFolder(res.filename)
+  }
   handleShow = async (row) => {
     const psarcdata = await psarcToJSON(row.filename);
-    this.setState({ selectedpsarcData: psarcdata, showpsarcDetail: true });
+    this.setState({
+      selectedFileName: row.filename,
+      selectedpsarcData: psarcdata,
+      showpsarcDetail: true,
+    });
   }
   handleHide = () => {
     this.setState({ showpsarcDetail: false });
+  }
+  toggleSearch = () => {
+    columns.forEach((item) => {
+      console.log(item);
+      //item.filter.props.style.display = !this.state.showSearch ? "" : "none";
+      //this.setState({ showSearch: !this.state.showSearch });
+      /*
+      filter: textFilter({
+      style: {
+        marginTop: '10px',
+        marginLeft: '20px',
+        display: 'none',
+      },
+    }),
+      */
+    })
   }
 
   render = () => {
@@ -213,6 +240,12 @@ export default class PSARCView extends React.Component {
               onClick={this.openDirDialog}
               className={choosepsarchstyle}>
               Choose .psarc Directory
+            </a>
+            <a
+              style={{ width: 100 + 'px' }}
+              onClick={this.toggleSearch}
+              className="extraPadding download">
+              Search
             </a>
             <a
               onClick={this.stopProcessing}
@@ -326,6 +359,11 @@ export default class PSARCView extends React.Component {
                     },
                   ]
                   const tableData = [];
+                  const extractRowEvents = {
+                    onClick: (e, row, rowIndex) => {
+                      this.extract(row.file, this.state.selectedFileName)
+                    },
+                  };
                   for (let i = 0; i < this.state.selectedpsarcData.files.length; i += 1) {
                     const cell = {
                       file: this.state.selectedpsarcData.files[i],
@@ -335,7 +373,7 @@ export default class PSARCView extends React.Component {
                   return (
                     <div >
                       <h1> PSARC: {this.state.selectedpsarcData.key + ".psarc"} </h1>
-                      <h1> Files: </h1>
+                      <h1> Files: {this.state.selectedpsarcData.files.length}</h1>
                       <div className="psarcFiles">
                         <BootstrapTable
                           keyField="file"
@@ -345,10 +383,11 @@ export default class PSARCView extends React.Component {
                           hover
                           bordered={false}
                           noDataIndication="No Data"
+                          rowEvents={extractRowEvents}
                         />
                       </div>
                       <br />
-                      <h1> Arrangements: </h1>
+                      <h1> Arrangements: {this.state.selectedpsarcData.arrangements.length}</h1>
                       <div className="psarcFiles">
                         <BootstrapTable
                           keyField="difficulty"

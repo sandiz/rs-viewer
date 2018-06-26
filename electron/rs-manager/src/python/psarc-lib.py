@@ -1,5 +1,21 @@
 from lib.rocksmith import PSARC
-import json, struct, zlib, getopt, math, sys, traceback, os
+import json, struct, zlib, getopt, math, sys, traceback, os, time
+
+
+def extract_file(psarc, fileToExtract):
+    with open(psarc, 'rb') as fh:
+        content = PSARC(True).parse_stream(fh)
+        for filepath, data in content.items():
+            if (filepath == fileToExtract):
+                filename = "/tmp/" + str(int(
+                    time.time())) + "_" + os.path.basename(fileToExtract)
+                with open(filename, "wb") as wh:
+                    wh.write(data)
+                    data = {}
+                    data["filename"] = filename
+                    print(json.dumps(data, sort_keys=False))
+                    break
+    pass
 
 
 def read_psarc(psarc):
@@ -43,19 +59,27 @@ def read_psarc(psarc):
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "f:")
+        opts, args = getopt.getopt(sys.argv[1:], "f:e:")
     except getopt.GetoptError as err:
         # print help information and exit:
         print(str(err))  # will print something like "option -a not recognized"
         sys.exit(2)
 
     file = ""
+    extractFile = ""
     for o, a in opts:
         if o in ("-f"):
             file = a
+        elif o in ("-e"):
+            extractFile = a
     try:
-        read_psarc(file)
+        if file != "" and extractFile != "":
+            extract_file(file, extractFile)
+        else:
+            read_psarc(file)
     except:
+        type, value, tb = sys.exc_info()
+        traceback.print_exc()
         print_error()
 
 
@@ -69,6 +93,6 @@ if __name__ == "__main__":
     try:
         main()
     except:
-        #type, value, tb = sys.exc_info()
-        #traceback.print_exc()
+        type, value, tb = sys.exc_info()
+        traceback.print_exc()
         print_error()
