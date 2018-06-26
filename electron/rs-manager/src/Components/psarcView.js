@@ -1,7 +1,11 @@
 import React from 'react'
 import BootstrapTable from 'react-bootstrap-table-next'
+import paginationFactory from 'react-bootstrap-table2-paginator';
+import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
+
 import PropTypes from 'prop-types';
-import readPSARC from '../fileservice';
+import readPSARC, { psarcToJSON } from '../fileservice';
+
 
 const { remote } = window.require('electron')
 function sizeFormatter(cell, row) {
@@ -17,9 +21,17 @@ const columns = [
     style: (cell, row, rowIndex, colIndex) => {
       return {
         width: '25%',
+        cursor: 'pointer',
       };
     },
     sort: true,
+    filter: textFilter({
+      style: {
+        marginTop: '10px',
+        marginLeft: '20px',
+        display: 'none',
+      },
+    }),
   },
   {
     dataField: "artist",
@@ -27,9 +39,17 @@ const columns = [
     style: (cell, row, rowIndex, colIndex) => {
       return {
         width: '25%',
+        cursor: 'pointer',
       };
     },
     sort: true,
+    filter: textFilter({
+      style: {
+        marginTop: '10px',
+        marginLeft: '20px',
+        display: 'none',
+      },
+    }),
   },
   {
     dataField: "arrangement",
@@ -37,6 +57,7 @@ const columns = [
     style: (cell, row, rowIndex, colIndex) => {
       return {
         width: '15%',
+        cursor: 'pointer',
       };
     },
     sort: true,
@@ -47,9 +68,17 @@ const columns = [
     style: (cell, row, rowIndex, colIndex) => {
       return {
         width: '15%',
+        cursor: 'pointer',
       };
     },
     sort: true,
+    filter: textFilter({
+      style: {
+        marginTop: '10px',
+        marginLeft: '20px',
+        display: 'none',
+      },
+    }),
   },
   {
     dataField: "size",
@@ -83,6 +112,13 @@ export default class PSARCView extends React.Component {
       files: [],
       processing: false,
       abortprocessing: false,
+      showpsarcDetail: false,
+      selectedpsarcData: null,
+    };
+    this.rowEvents = {
+      onClick: (e, row, rowIndex) => {
+        this.handleShow(row);
+      },
     };
   }
   openDirDialog = async () => {
@@ -118,7 +154,6 @@ export default class PSARCView extends React.Component {
     }
     return results;
   }
-
   psarcRead = async (results) => {
     const count = results.length;
     let index = 1;
@@ -127,7 +162,7 @@ export default class PSARCView extends React.Component {
       // eslint-disable-next-line
       const currentResults = await readPSARC(prObj[0], prObj[1], (500 + (index * 100)))
       this.processedFiles = this.processedFiles.concat(currentResults);
-      this.props.updateHeader(this.tabname, `Processed PSARC:  ${currentResults[0].name} (${index}/${count})`);
+      this.props.updateHeader(this.tabname, `Processesing PSARC:  ${currentResults[0].name} (${index}/${count})`);
       if (index >= count) {
         this.props.resetHeader(this.tabname);
         this.setState({ files: this.processedFiles, processing: false });
@@ -151,9 +186,23 @@ export default class PSARCView extends React.Component {
   stopProcessing = async () => {
     this.setState({ files: this.processedFiles, abortprocessing: true });
   }
+  handleShow = async (row) => {
+    const psarcdata = await psarcToJSON(row.filename);
+    this.setState({ selectedpsarcData: psarcdata, showpsarcDetail: true });
+  }
+  handleHide = () => {
+    this.setState({ showpsarcDetail: false });
+  }
+
   render = () => {
     const stopprocessingstyle = this.state.processing ? "" : "none";
     const choosepsarchstyle = "extraPadding download " + (this.state.processing ? "isDisabled" : "");
+    const psarcdetailsstyle = "modal-window " + (this.state.showpsarcDetail ? "" : "hidden");
+    const options = {
+      sizePerPage: 25,
+      pageStartIndex: 1,
+      sizePerPageList: [],
+    }
     if (this.props.currentTab === null) {
       return null;
     } else if (this.props.currentTab.id === this.tabname) {
@@ -187,7 +236,137 @@ export default class PSARCView extends React.Component {
               hover
               bordered={false}
               noDataIndication={this.noData}
+              rowEvents={this.rowEvents}
+              pagination={paginationFactory(options)}
+              filter={filterFactory()}
             />
+          </div>
+          <div id="open-modal" className={psarcdetailsstyle} style={{ opacity: 1, pointerEvents: "auto" }}>
+            <div id="modal-info" className="width-75">
+              <a title="Close" className="modal-close" onClick={this.handleHide}>Close</a>
+              <br />
+              {(() => {
+                if (this.state.selectedpsarcData != null) {
+                  const filecolumns = [
+                    {
+                      dataField: "file",
+                      text: "File",
+                      style: (cell, row, rowIndex, colIndex) => {
+                        return {
+                          width: '80%',
+                          cursor: 'pointer',
+                        };
+                      },
+                      sort: true,
+                    },
+                  ]
+                  const arrcolumns = [
+                    {
+                      dataField: "song",
+                      text: "Song",
+                      style: (cell, row, rowIndex, colIndex) => {
+                        return {
+                          width: '15%',
+                        };
+                      },
+                    },
+                    {
+                      dataField: "artist",
+                      text: "Artist",
+                      style: (cell, row, rowIndex, colIndex) => {
+                        return {
+                          width: '15%',
+                        };
+                      },
+                    },
+                    {
+                      dataField: "album",
+                      text: "Album",
+                      style: (cell, row, rowIndex, colIndex) => {
+                        return {
+                          width: '15%',
+                        };
+                      },
+                    },
+                    {
+                      dataField: "arrangement",
+                      text: "Arrangement",
+                      style: (cell, row, rowIndex, colIndex) => {
+                        return {
+                          width: '15%',
+                        };
+                      },
+                    },
+                    {
+                      dataField: "dlc",
+                      text: "DLC",
+                      style: (cell, row, rowIndex, colIndex) => {
+                        return {
+                          width: '15%',
+                        };
+                      },
+                    },
+                    {
+                      dataField: "sku",
+                      text: "SKU",
+                      style: (cell, row, rowIndex, colIndex) => {
+                        return {
+                          width: '15%',
+                        };
+                      },
+                    },
+                    {
+                      dataField: "difficulty",
+                      text: "Difficulty",
+                      style: (cell, row, rowIndex, colIndex) => {
+                        return {
+                          width: '15%',
+                        };
+                      },
+                    },
+                  ]
+                  const tableData = [];
+                  for (let i = 0; i < this.state.selectedpsarcData.files.length; i += 1) {
+                    const cell = {
+                      file: this.state.selectedpsarcData.files[i],
+                    }
+                    tableData.push(cell);
+                  }
+                  return (
+                    <div >
+                      <h1> PSARC: {this.state.selectedpsarcData.key + ".psarc"} </h1>
+                      <h1> Files: </h1>
+                      <div className="psarcFiles">
+                        <BootstrapTable
+                          keyField="file"
+                          data={tableData}
+                          columns={filecolumns}
+                          classes="psarcTable"
+                          hover
+                          bordered={false}
+                          noDataIndication="No Data"
+                        />
+                      </div>
+                      <br />
+                      <h1> Arrangements: </h1>
+                      <div className="psarcFiles">
+                        <BootstrapTable
+                          keyField="difficulty"
+                          data={this.state.selectedpsarcData.arrangements}
+                          columns={arrcolumns}
+                          classes="psarcTable"
+                          hover
+                          bordered={false}
+                          noDataIndication="No Data"
+                        />
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
+
+            </div>
           </div>
         </div>
       );

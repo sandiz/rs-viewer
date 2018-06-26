@@ -32,6 +32,21 @@ async function getSongDetails(psarc) {
 
   return arrangementarr;
 }
+export async function psarcToJSON(psarc) {
+  try {
+    const bl = await window.spawn('python3', [`${window.dirname}/python/psarc-lib.py`, '-f', psarc])
+    return JSON.parse(bl.toString());
+  }
+  catch (error) {
+    if (error.stderr != null) {
+      console.log(error.stderr.toString());
+    }
+    else {
+      console.log(error);
+    }
+  }
+  return null;
+}
 export default async function readPSARC(psarc, statResult, sleepms) {
   //await sleep(sleepms);
   const ret = await getSongDetails(psarc);
