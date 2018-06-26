@@ -441,3 +441,10 @@ tbody tr:nth-child(odd) {
   height:282px;
   overflow:auto;
 }
+
+.overflowellipsis {
+  white-space: nowrap; 
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width:100%
+}

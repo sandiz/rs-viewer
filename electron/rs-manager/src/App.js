@@ -73,9 +73,10 @@ class App extends Component {
                 <div
                   className="collapse navbar-collapse"
                   id="navbarSupportedContent"
+                  style={{ width: 100 + '%', textAlign: 'center' }}
                 >
                   <ul className="nav navbar-nav ml-auto mr-auto topHeader">
-                    <li className="nav-item active">
+                    <li className="nav-item active overflowellipsis">
                       <h2>
                         <a href="#tab-name" className="">
                           {this.state.appTitle}

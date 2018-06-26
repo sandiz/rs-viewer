@@ -29,7 +29,7 @@ const columns = [
       style: {
         marginTop: '10px',
         marginLeft: '20px',
-        display: 'none',
+        display: '',
       },
     }),
   },
@@ -47,20 +47,9 @@ const columns = [
       style: {
         marginTop: '10px',
         marginLeft: '20px',
-        display: 'none',
+        display: '',
       },
     }),
-  },
-  {
-    dataField: "arrangement",
-    text: "Arrangement",
-    style: (cell, row, rowIndex, colIndex) => {
-      return {
-        width: '15%',
-        cursor: 'pointer',
-      };
-    },
-    sort: true,
   },
   {
     dataField: "name",
@@ -76,9 +65,20 @@ const columns = [
       style: {
         marginTop: '10px',
         marginLeft: '20px',
-        display: 'none',
+        display: '',
       },
     }),
+  },
+  {
+    dataField: "arrangement",
+    text: "Arrangement",
+    style: (cell, row, rowIndex, colIndex) => {
+      return {
+        width: '15%',
+        cursor: 'pointer',
+      };
+    },
+    sort: true,
   },
   {
     dataField: "size",
@@ -115,7 +115,6 @@ export default class PSARCView extends React.Component {
       showpsarcDetail: false,
       selectedpsarcData: null,
       selectedFileName: "",
-      showSearch: false,
     };
     this.rowEvents = {
       onClick: (e, row, rowIndex) => {
@@ -204,28 +203,12 @@ export default class PSARCView extends React.Component {
   handleHide = () => {
     this.setState({ showpsarcDetail: false });
   }
-  toggleSearch = () => {
-    columns.forEach((item) => {
-      console.log(item);
-      //item.filter.props.style.display = !this.state.showSearch ? "" : "none";
-      //this.setState({ showSearch: !this.state.showSearch });
-      /*
-      filter: textFilter({
-      style: {
-        marginTop: '10px',
-        marginLeft: '20px',
-        display: 'none',
-      },
-    }),
-      */
-    })
-  }
-
   render = () => {
     const stopprocessingstyle = this.state.processing ? "" : "none";
     const choosepsarchstyle = "extraPadding download " + (this.state.processing ? "isDisabled" : "");
     const psarcdetailsstyle = "modal-window " + (this.state.showpsarcDetail ? "" : "hidden");
     const options = {
+      paginationSize: 10,
       sizePerPage: 25,
       pageStartIndex: 1,
       sizePerPageList: [],
@@ -240,12 +223,6 @@ export default class PSARCView extends React.Component {
               onClick={this.openDirDialog}
               className={choosepsarchstyle}>
               Choose .psarc Directory
-            </a>
-            <a
-              style={{ width: 100 + 'px' }}
-              onClick={this.toggleSearch}
-              className="extraPadding download">
-              Search
             </a>
             <a
               onClick={this.stopProcessing}
