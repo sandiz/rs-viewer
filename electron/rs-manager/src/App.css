@@ -141,9 +141,13 @@ ul.CTAs a {
   margin-bottom: 5px;
 }
 
+a.download:hover {
+  background: #fff !important;
+  color: #7386d5 !important;
+}
 a.download {
-  background: #fff;
-  color: #7386d5;
+  color: #fff !important;
+  background: #7386d5 !important;
 }
 
 a.article,
@@ -293,7 +297,11 @@ table td {
   text-align: center;
   padding: 6px;
   border: 1px solid black;
-  width: 100px !important;
+  /*width: 100px !important;
+  max-width: 100px;*/
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 table thead {
   border: 1px solid black !important;
@@ -313,4 +321,10 @@ tbody tr:nth-child(even) {
 
 tbody tr:nth-child(odd) {
   background-color: #ffffff;
+}
+
+.isDisabled {
+  cursor: not-allowed !important; 
+  opacity: 0.5 !important;
+  pointer-events: none;
 }

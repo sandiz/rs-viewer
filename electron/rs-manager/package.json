@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "autoprefixer": "7.1.6",
+    "await-spawn": "^2.1.1",
     "babel-eslint": "7.2.3",
     "babel-jest": "20.0.3",
     "babel-preset-react-app": "^3.1.1",

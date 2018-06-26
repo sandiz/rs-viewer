@@ -19,11 +19,13 @@ class App extends Component {
       (child == null ? "" : ` >  ${child.name}`);
     this.setState({ currentTab: tab, currentChildTab: child, appTitle: text });
   }
-  updateHeader = (text) => {
-    this.setState({ appTitle: text });
+  updateHeader = (tabname, text) => {
+    if (tabname === this.state.currentTab.id) {
+      this.setState({ appTitle: text });
+    }
   }
-  resetHeader = () => {
-    if (this.state.currentTab != null) {
+  resetHeader = (tabname) => {
+    if (this.state.currentTab != null && tabname === this.state.currentTab.id) {
       this.handleChange(this.state.currentTab, this.state.currentChildTab);
     }
   }
