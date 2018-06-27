@@ -49,10 +49,10 @@ def read_psarc(psarc):
                                                       0) * 100
                     songDict["dlckey"] = data.get("DLCKey", "")
                     songDict["songkey"] = data.get("SongKey", "")
-                    songDict["id"] = data.get(
-                        "PersistentID", ''.join(
-                            random.choices(
-                                string.ascii_uppercase + string.digits, k=10)))
+                    songDict["fullName"] = data.get("FullName", "")
+                    songDict["id"] = data.get("PersistentID", ''.join(
+                        random.choices(
+                            string.ascii_uppercase + string.digits, k=10)))
                     arrangments.append(songDict)
 
     psarcData["key"] = os.path.splitext(os.path.basename(psarc))[0]

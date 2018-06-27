@@ -4,7 +4,8 @@ import paginationFactory from 'react-bootstrap-table2-paginator';
 import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
 
 import PropTypes from 'prop-types';
-import readPSARC, { psarcToJSON, extractFile } from '../psarcservice';
+import readPSARC, { psarcToJSON, extractFile } from '../psarcService';
+import updateSongsOwned, { initSongsOwnedDB, saveSongsOwnedDB } from '../sqliteService';
 
 
 const { remote } = window.require('electron')
@@ -63,7 +64,7 @@ const columns = [
     }),
   },
   {
-    dataField: "name",
+    dataField: "psarc",
     text: "File Name",
     style: (cell, row, rowIndex, colIndex) => {
       return {
@@ -174,12 +175,13 @@ export default class PSARCView extends React.Component {
       // eslint-disable-next-line
       const currentResults = await readPSARC(prObj[0], prObj[1], (500 + (index * 100)))
       this.processedFiles = this.processedFiles.concat(currentResults);
-      this.props.updateHeader(this.tabname, `Processesing PSARC:  ${currentResults[0].name} (${index}/${count})`);
+      this.props.updateHeader(this.tabname, `Processesing PSARC:  ${currentResults[0].psarc} (${index}/${count})`);
       if (index >= count) {
-        this.props.resetHeader(this.tabname);
+        this.props.updateHeader(this.tabname, `Processed ${count} PSARC's, ${this.processedFiles.length} arrangements found.`);
         this.setState({ files: this.processedFiles, processing: false });
       }
       if (this.state.abortprocessing) {
+        this.props.updateHeader(this.tabname, `Processed ${index} PSARC's, ${this.processedFiles.length} arrangements found.`);
         this.setState({ processing: false, abortprocessing: false });
         break;
       }
@@ -213,6 +215,23 @@ export default class PSARCView extends React.Component {
   }
   handleHide = () => {
     this.setState({ showpsarcDetail: false });
+  }
+  updateSongList = async () => {
+    await initSongsOwnedDB();
+    let cache = [];
+    for (let i = 0; i < this.state.files.length; i += 1) {
+      this.props.updateHeader(this.tabname, `Updating db with PSARC:  ${this.state.files[i].psarc} (${i}/${this.state.files.length})`);
+      cache.push(this.state.files[i]);
+      if (cache.length === 5) {
+        // eslint-disable-next-line
+        await updateSongsOwned(cache);
+        cache = [];
+      }
+    }
+    await updateSongsOwned(cache);
+    this.props.updateHeader("Updated db, Arrangements: " + this.state.files.length);
+    setTimeout(() => this.props.resetHeader(this.tabname), 5000);
+    await saveSongsOwnedDB();
   }
   render = () => {
     const stopprocessingstyle = this.state.processing ? "" : "none";
@@ -249,7 +268,7 @@ export default class PSARCView extends React.Component {
               Force Generate View
             </a>
             <a
-              onClick={this.forceViewUpdate}
+              onClick={this.updateSongList}
               className="extraPadding download"
               style={{ display: `${hasdatastyle}` }}>
               Update Songlist (Owned)
@@ -257,7 +276,7 @@ export default class PSARCView extends React.Component {
           </div>
           <div>
             <BootstrapTable
-              keyField="id"
+              keyField="uniquekey"
               data={this.state.files}
               columns={columns}
               classes="psarcTable"

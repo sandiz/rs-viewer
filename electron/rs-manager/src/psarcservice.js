@@ -3,9 +3,6 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 */
-import path from 'path';
-//const spawn = require('await-spawn')
-
 async function getSongDetails(psarc) {
   const arrangementarr = [];
   try {
@@ -63,7 +60,12 @@ export default async function readPSARC(psarc, statResult, sleepms) {
   const ret = await getSongDetails(psarc);
   const psarcData = []
   ret.forEach((item) => {
-    const psarchBlurb = {
+    const psarcBlurb = item;
+    psarcBlurb.size = statResult.size;
+    psarcBlurb.created = statResult.ctimeMs;
+    psarcBlurb.filename = psarc;
+    psarcBlurb.uniquekey = psarcBlurb.filename + "_" + item.fullName
+    /*{
       filename: psarc,
       name: path.basename(psarc, ".psarc"),
       size: statResult.size,
@@ -72,8 +74,8 @@ export default async function readPSARC(psarc, statResult, sleepms) {
       song: item.song,
       arrangement: item.arrangement,
       id: item.id,
-    };
-    psarcData.push(psarchBlurb);
+    };*/
+    psarcData.push(psarcBlurb);
   })
   return psarcData;
 }
