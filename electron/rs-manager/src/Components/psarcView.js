@@ -170,6 +170,10 @@ export default class PSARCView extends React.Component {
   psarcRead = async (results) => {
     const count = results.length;
     let index = 1;
+    this.setState({
+      files: [],
+    });
+    this.processedFiles = [];
     // eslint-disable-next-line
     for (const prObj of results) {
       // eslint-disable-next-line
@@ -182,7 +186,7 @@ export default class PSARCView extends React.Component {
       }
       if (this.state.abortprocessing) {
         this.props.updateHeader(this.tabname, `Processed ${index} PSARC's, ${this.processedFiles.length} arrangements found.`);
-        this.setState({ processing: false, abortprocessing: false });
+        this.setState({ files: this.processedFiles, processing: false, abortprocessing: false });
         break;
       }
       index += 1
@@ -198,7 +202,7 @@ export default class PSARCView extends React.Component {
     this.setState({ files: this.processedFiles });
   }
   stopProcessing = async () => {
-    this.setState({ files: this.processedFiles, abortprocessing: true });
+    this.setState({ abortprocessing: true });
   }
   extract = async (file, psarc) => {
     const res = await extractFile(psarc, file)
@@ -218,20 +222,21 @@ export default class PSARCView extends React.Component {
   }
   updateSongList = async () => {
     await initSongsOwnedDB();
-    let cache = [];
+    //let cache = [];
+    console.log("arrangments: " + this.state.files.length + this.props.resetHeader);
     for (let i = 0; i < this.state.files.length; i += 1) {
-      this.props.updateHeader(this.tabname, `Updating db with PSARC:  ${this.state.files[i].psarc} (${i}/${this.state.files.length})`);
-      cache.push(this.state.files[i]);
-      if (cache.length === 5) {
-        // eslint-disable-next-line
-        await updateSongsOwned(cache);
-        cache = [];
-      }
+      this.props.updateHeader(this.tabname, `Updating Songlist with PSARC:  ${this.state.files[i].psarc} (${i}/${this.state.files.length})`);
+      //cache.push(this.state.files[i]);
+      //if (cache.length === 5) {
+      // eslint-disable-next-line
+      await updateSongsOwned(this.state.files[i]);
+      //cache = [];
+      //}
     }
-    await updateSongsOwned(cache);
-    this.props.updateHeader("Updated db, Arrangements: " + this.state.files.length);
-    setTimeout(() => this.props.resetHeader(this.tabname), 5000);
+    //await updateSongsOwned(cache);
+    //setTimeout(() => { this.props.resetHeader(this.tabname) }, 5000);
     await saveSongsOwnedDB();
+    this.props.updateHeader(this.tabname, "Updated Songlist, Arrangements: " + this.state.files.length);
   }
   render = () => {
     const stopprocessingstyle = this.state.processing ? "" : "none";
