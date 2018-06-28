@@ -9,6 +9,11 @@ export async function initSongsOwnedDB() {
 export async function saveSongsOwnedDB() {
   await db.close();
 }
+export async function updateMasteryandPlayed(id, mastery, playedcount) {
+  //await db.close();
+  const op = await db.run("UPDATE songs_owned SET mastery=?,count=? where id=?", mastery, playedcount, id);
+  return op.changes;
+}
 
 export default async function updateSongsOwned(psarcResult) {
   let sqlstr = ";";

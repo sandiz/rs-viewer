@@ -3,13 +3,27 @@ import BootstrapTable from 'react-bootstrap-table-next'
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import filterFactory from 'react-bootstrap-table2-filter';
 import PropTypes from 'prop-types';
-import { getSongsOwned, countSongsOwned } from '../sqliteService';
+import readProfile from '../steamprofileService';
+import { getSongsOwned, countSongsOwned, updateMasteryandPlayed, initSongsOwnedDB, saveSongsOwnedDB } from '../sqliteService';
+
+const path = require('path');
+
+const { remote } = window.require('electron')
 
 function unescapeFormatter(cell, row) {
   return <span>{unescape(cell)}</span>;
 }
 function roundFormatter(cell, row) {
   return <span>{Math.round(cell)}</span>;
+}
+function round100Formatter(cell, row) {
+  return <span>{(cell * 100).toFixed(2)}</span>;
+}
+function countFormmatter(cell, row) {
+  if (cell == null) {
+    return <span>0</span>;
+  }
+  return <span>{cell}</span>;
 }
 //eslint-disable-next-line
 const RemoteAll = ({ columns, data, page, sizePerPage, onTableChange, totalSize, rowEvents }) => (
@@ -113,7 +127,7 @@ export default class SonglistView extends React.Component {
           };
         },
         sort: true,
-        formatter: roundFormatter,
+        formatter: round100Formatter,
       },
       {
         dataField: "count",
@@ -124,6 +138,7 @@ export default class SonglistView extends React.Component {
           };
         },
         sort: true,
+        formatter: countFormmatter,
       },
       {
         dataField: "difficulty",
@@ -168,6 +183,56 @@ export default class SonglistView extends React.Component {
       sortOrder: null,
     })
   }
+  openDirDialog = async () => {
+    const prfldbs = remote.dialog.showOpenDialog({
+      properties: ["openFile"],
+    });
+    if (prfldbs.length > 0) {
+      this.props.updateHeader(
+        this.tabname,
+        this.childtabname,
+        `Decrypting ${path.basename(prfldbs[0])}`,
+      );
+      const steamProfile = await readProfile(prfldbs[0]);
+      const stats = steamProfile.Stats.Songs;
+      this.props.updateHeader(
+        this.tabname,
+        this.childtabname,
+        `Song Stats Found: ${Object.keys(stats).length}`,
+      );
+      await initSongsOwnedDB();
+      const keys = Object.keys(stats);
+      let updatedRows = 0;
+      for (let i = 0; i < keys.length; i += 1) {
+        const stat = stats[keys[i]];
+        const mastery = stat.MasteryPeak;
+        const played = stat.PlayedCount;
+        this.props.updateHeader(
+          this.tabname,
+          this.childtabname,
+          `Updating Stat for SongID:  ${keys[i]} (${i}/${keys.length})`,
+        );
+        // eslint-disable-next-line
+        const rows = await updateMasteryandPlayed(keys[i], mastery, played);
+        if (rows === 0) {
+          console.log("Missing ID: " + keys[i]);
+        }
+        updatedRows += rows;
+      }
+      this.props.updateHeader(
+        this.tabname,
+        this.childtabname,
+        "Stats Found: " + updatedRows + ", Total Stats: " + keys.length,
+      );
+      const output = await getSongsOwned(
+        0,
+        this.state.sizePerPage,
+      )
+      this.setState({ songs: output, page: 1, totalSize: output[0].acount });
+      await saveSongsOwnedDB();
+    }
+  }
+
   handleTableChange = async (type, {
     page,
     sizePerPage,
@@ -208,6 +273,7 @@ export default class SonglistView extends React.Component {
     } else if (this.props.currentTab.id === this.tabname &&
       this.props.currentChildTab.id === this.childtabname) {
       const { songs, sizePerPage, page } = this.state;
+      const choosepsarchstyle = "extraPadding download " + (this.state.totalSize < 0 ? "isDisabled" : "");
       return (
         <div>
           <div style={{ width: 100 + '%', margin: "auto", textAlign: "center" }}>
@@ -220,7 +286,13 @@ export default class SonglistView extends React.Component {
               type="search"
             />
           </div>
-          <br />
+          <div className="centerButton list-unstyled">
+            <a
+              onClick={this.openDirDialog}
+              className={choosepsarchstyle}>
+              Update Mastery from Steam Profile
+            </a>
+          </div>
           <div>
             <RemoteAll
               data={songs}
