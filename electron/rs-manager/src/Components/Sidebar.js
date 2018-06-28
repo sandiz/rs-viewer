@@ -48,16 +48,18 @@ export default class Sidebar extends React.Component {
     this.collapseClass = 'collapse list-unstyled'
     this.expandedClass = 'list-unstyled'
     this.state = {
-      currentTab: 'tab-psarc',
+      currentTab: 'tab-songs',
       expandedTabs: [],
-      activeChildTab: '',
+      currentChildTab: 'songs-owned',
     }
   }
   componentWillMount() {
-    this.props.handleChange(TabsData[3])
+    //this.props.handleChange(TabsData[0]);
+    this.props.handleChange(TabsData[1], TabsData[1].child[0])
+    this.toggleActive(TabsData[1]);
   }
   setChildActive(val, cid) {
-    this.setState({ currentTab: val.id, activeChildTab: cid.id })
+    this.setState({ currentTab: val.id, currentChildTab: cid.id })
     this.props.handleChange(val, cid)
   }
   toggleActive(val) {
@@ -104,7 +106,7 @@ export default class Sidebar extends React.Component {
               tab.child.map((childtab, index2) => {
                 return (
                   <li key={`child-key-${childtab.id}`}>
-                    <a className={this.state.currentTab === tab.id && this.state.activeChildTab === childtab.id ? 'activeChildTab' : 'inactiveChildTab'} onClick={() => this.setChildActive(tab, childtab)}>{childtab.name}</a>
+                    <a className={this.state.currentTab === tab.id && this.state.currentChildTab === childtab.id ? 'activeChildTab' : 'inactiveChildTab'} onClick={() => this.setChildActive(tab, childtab)}>{childtab.name}</a>
                   </li>
                 );
               })

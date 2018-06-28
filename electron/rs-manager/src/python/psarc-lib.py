@@ -50,6 +50,8 @@ def read_psarc(psarc):
                     songDict["dlckey"] = data.get("DLCKey", "")
                     songDict["songkey"] = data.get("SongKey", "")
                     songDict["fullName"] = data.get("FullName", "")
+                    songDict["lastConversionTime"] = data.get(
+                        "LastConversionDateTime", "")
                     songDict["id"] = data.get("PersistentID", ''.join(
                         random.choices(
                             string.ascii_uppercase + string.digits, k=10)))

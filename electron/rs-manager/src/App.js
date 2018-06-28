@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import Sidebar from './Components/Sidebar'
 import PSARCView from './Components/psarcView'
+import SonglistView from './Components/songlistView'
 import './App.css'
 
 class App extends Component {
@@ -20,7 +21,18 @@ class App extends Component {
     this.setState({ currentTab: tab, currentChildTab: child, appTitle: text });
   }
   updateHeader = (tabname, text) => {
+    if (this.state.currentTab === null) {
+      return;
+    }
     if (tabname === this.state.currentTab.id) {
+      this.setState({ appTitle: text });
+    }
+  }
+  updateChildHeader = (tabname, childname, text) => {
+    if (tabname === null || this.state.currentChildTab === null) {
+      console.log("");
+    }
+    else if (tabname === this.state.currentTab.id && childname === this.state.currentChildTab.id) {
       this.setState({ appTitle: text });
     }
   }
@@ -91,6 +103,14 @@ class App extends Component {
               <PSARCView
                 currentTab={this.state.currentTab}
                 updateHeader={this.updateHeader}
+                resetHeader={this.resetHeader} />
+              <SonglistView
+                currentTab={this.state.currentTab}
+                currentChildTab={this.state.currentChildTab}
+                requiredTab="tab-songs"
+                requiredChildTab="songs-owned"
+                sqliteTable="songs_owned"
+                updateHeader={this.updateChildHeader}
                 resetHeader={this.resetHeader} />
             </div>
           </div>

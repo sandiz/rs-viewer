@@ -7,7 +7,6 @@ import PropTypes from 'prop-types';
 import readPSARC, { psarcToJSON, extractFile } from '../psarcService';
 import updateSongsOwned, { initSongsOwnedDB, saveSongsOwnedDB } from '../sqliteService';
 
-
 const { remote } = window.require('electron')
 function sizeFormatter(cell, row) {
   return <span>{Math.round(cell / 1024 / 1024)} MB</span>;
@@ -133,6 +132,12 @@ export default class PSARCView extends React.Component {
         this.handleShow(row);
       },
     };
+    this.options = {
+      paginationSize: 10,
+      sizePerPage: 25,
+      pageStartIndex: 1,
+      sizePerPageList: [],
+    }
   }
   openDirDialog = async () => {
     const dirs = remote.dialog.showOpenDialog({
@@ -236,19 +241,13 @@ export default class PSARCView extends React.Component {
     //await updateSongsOwned(cache);
     //setTimeout(() => { this.props.resetHeader(this.tabname) }, 5000);
     await saveSongsOwnedDB();
-    this.props.updateHeader(this.tabname, "Updated Songlist, Arrangements: " + this.state.files.length);
+    this.props.updateHeader(this.tabname, "Updated Songlist with " + this.state.files.length + " Arrangements");
   }
   render = () => {
     const stopprocessingstyle = this.state.processing ? "" : "none";
     const hasdatastyle = this.state.processing === false && this.state.files.length > 0 ? "" : "none";
     const choosepsarchstyle = "extraPadding download " + (this.state.processing ? "isDisabled" : "");
     const psarcdetailsstyle = "modal-window " + (this.state.showpsarcDetail ? "" : "hidden");
-    const options = {
-      paginationSize: 10,
-      sizePerPage: 25,
-      pageStartIndex: 1,
-      sizePerPageList: [],
-    }
     if (this.props.currentTab === null) {
       return null;
     } else if (this.props.currentTab.id === this.tabname) {
@@ -289,7 +288,7 @@ export default class PSARCView extends React.Component {
               bordered={false}
               noDataIndication={this.noData}
               rowEvents={this.rowEvents}
-              pagination={paginationFactory(options)}
+              pagination={paginationFactory(this.options)}
               filter={filterFactory()}
             />
           </div>
