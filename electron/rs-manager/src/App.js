@@ -3,6 +3,7 @@ import path from 'path';
 import Sidebar from './Components/Sidebar'
 import PSARCView from './Components/psarcView'
 import SonglistView from './Components/songlistView'
+import DashboardView from './Components/dashboardView'
 import getProfileConfig from './configService';
 import './App.css'
 
@@ -133,7 +134,12 @@ class App extends Component {
                 resetHeader={this.resetHeader}
                 handleChange={this.updateProfile}
               />
-
+              <DashboardView
+                currentTab={this.state.currentTab}
+                updateHeader={this.updateHeader}
+                resetHeader={this.resetHeader}
+                handleChange={this.updateProfile}
+              />
             </div>
           </div>
         </div>

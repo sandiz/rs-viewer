@@ -477,3 +477,48 @@ tbody tr:nth-child(odd) {
     max-height: 100px;
     max-width: 100px;
 }  
+.ta-center {
+  text-align: center;
+ }
+ .ta-left {
+   text-align: left;
+ }
+ .ta-right {
+   text-align: right;
+ }
+ .stat-container {
+    border-bottom: solid 1px rgba(187,187,187, .55);
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding-top: 10px; 
+    padding-left: 10px; 
+    padding-right: 10px; 
+ }
+.dashboard-top {
+  height: 240px;
+  background-color: #fff;
+  border:1px solid #bbb;
+  color: #252525;
+  border-radius: 10px;
+  padding: 10px;
+  margin: auto;
+  width: 100%;
+}
+.dashboard-middle {
+  height: 272px;
+  background-color: #fff;
+  border:1px solid #bbb;
+  color: #252525;
+  border-radius: 10px;
+  padding: 10px;
+  margin: auto;
+  width: 100%;
+}
+hr {
+  border-bottom: .5px solid black !important;
+  margin-top: 10px !important;
+}
+.col-md-3 {
+    flex: 0 0 31% !important;
+}
