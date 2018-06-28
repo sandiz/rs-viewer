@@ -4,7 +4,8 @@ import paginationFactory from 'react-bootstrap-table2-paginator';
 import filterFactory from 'react-bootstrap-table2-filter';
 import PropTypes from 'prop-types';
 import readProfile from '../steamprofileService';
-import { getSongsOwned, countSongsOwned, updateMasteryandPlayed, initSongsOwnedDB, saveSongsOwnedDB } from '../sqliteService';
+import { getSongsOwned, countSongsOwned, updateMasteryandPlayed, initSongsOwnedDB } from '../sqliteService';
+import getProfileConfig, { updateProfileConfig } from '../configService';
 
 const path = require('path');
 
@@ -13,11 +14,23 @@ const { remote } = window.require('electron')
 function unescapeFormatter(cell, row) {
   return <span>{unescape(cell)}</span>;
 }
-function roundFormatter(cell, row) {
-  return <span>{Math.round(cell)}</span>;
+function difficultyFormatter(cell, row) {
+  return <span />;
 }
 function round100Formatter(cell, row) {
-  return <span>{(cell * 100).toFixed(2)}</span>;
+  if (cell == null) { cell = 0; }
+  cell = (cell * 100).toFixed(2);
+  if (cell >= 100) { cell = 100; }
+  const width = cell + "%";
+  return (<span>
+    <span className="mastery">{cell}%</span>
+    <span>
+      <svg height="100%">
+        <rect width={width} height="100%" style={{ fill: "lightgreen", strokeWidth: 2, stroke: 'rgb(0, 0, 0)' }} />
+        <text x="40%" y="18" fontSize="15px">{cell} %</text>
+      </svg>
+    </span>
+  </span>);
 }
 function countFormmatter(cell, row) {
   if (cell == null) {
@@ -141,6 +154,26 @@ export default class SonglistView extends React.Component {
         formatter: countFormmatter,
       },
       {
+        classes: (cell, row, rowIndex, colIndex) => {
+          const def = "iconPreview difficulty ";
+          let diff = "";
+          if (cell <= 20) {
+            diff = "diff_0"
+          }
+          else if (cell >= 21 && cell <= 40) {
+            diff = "diff_1"
+          }
+          else if (cell >= 41 && cell <= 60) {
+            diff = "diff_2"
+          }
+          else if (cell >= 61 && cell <= 80) {
+            diff = "diff_3"
+          }
+          else if (cell >= 81) {
+            diff = "diff_4"
+          }
+          return def + diff;
+        },
         dataField: "difficulty",
         text: "Difficulty",
         style: (cell, row, rowIndex, colIndex) => {
@@ -149,7 +182,7 @@ export default class SonglistView extends React.Component {
           };
         },
         sort: true,
-        formatter: roundFormatter,
+        formatter: difficultyFormatter,
       },
     ];
     this.rowEvents = {
@@ -170,8 +203,6 @@ export default class SonglistView extends React.Component {
       page: this.state.page,
       sizePerPage: this.state.sizePerPage,
       filters: {},
-      sortField: null,
-      sortOrder: null,
     })
   }
   handleSearchChange = (e) => {
@@ -184,9 +215,16 @@ export default class SonglistView extends React.Component {
     })
   }
   openDirDialog = async () => {
-    const prfldbs = remote.dialog.showOpenDialog({
-      properties: ["openFile"],
-    });
+    const prfldb = await getProfileConfig();
+    let prfldbs = []
+    if (prfldb !== "") { //check for file sync also
+      prfldbs.push(prfldb);
+    }
+    else {
+      prfldbs = remote.dialog.showOpenDialog({
+        properties: ["openFile"],
+      });
+    }
     if (prfldbs.length > 0) {
       this.props.updateHeader(
         this.tabname,
@@ -195,6 +233,8 @@ export default class SonglistView extends React.Component {
       );
       const steamProfile = await readProfile(prfldbs[0]);
       const stats = steamProfile.Stats.Songs;
+      await updateProfileConfig(prfldbs[0]);
+      this.props.handleChange();
       this.props.updateHeader(
         this.tabname,
         this.childtabname,
@@ -227,9 +267,11 @@ export default class SonglistView extends React.Component {
       const output = await getSongsOwned(
         0,
         this.state.sizePerPage,
+        "mastery",
+        "desc",
+        this.search.value,
       )
       this.setState({ songs: output, page: 1, totalSize: output[0].acount });
-      await saveSongsOwnedDB();
     }
   }
 
@@ -321,6 +363,7 @@ SonglistView.propTypes = {
   updateHeader: PropTypes.func,
   // eslint-disable-next-line
   resetHeader: PropTypes.func,
+  handleChange: PropTypes.func,
 }
 SonglistView.defaultProps = {
   currentTab: null,
@@ -330,4 +373,5 @@ SonglistView.defaultProps = {
   sqliteTable: '',
   updateHeader: () => { },
   resetHeader: () => { },
+  handleChange: () => { },
 }

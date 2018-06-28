@@ -1,7 +1,9 @@
 import React, { Component } from 'react'
+import path from 'path';
 import Sidebar from './Components/Sidebar'
 import PSARCView from './Components/psarcView'
 import SonglistView from './Components/songlistView'
+import getProfileConfig from './configService';
 import './App.css'
 
 class App extends Component {
@@ -12,13 +14,26 @@ class App extends Component {
       currentChildTab: null,
       showSidebar: true,
       appTitle: '',
+      currentProfile: '',
     };
     //this.handleChange = this.handleChange.bind(this);
   }
-  handleChange = (tab, child) => {
+  componentDidMount = async () => {
+    await this.updateProfile();
+  }
+  updateProfile = async () => {
+    const prfldb = await getProfileConfig();
+    this.setState({ currentProfile: prfldb });
+  }
+  handleChange = async (tab, child) => {
     const text = (tab == null) ? "" : tab.name +
       (child == null ? "" : ` >  ${child.name}`);
-    this.setState({ currentTab: tab, currentChildTab: child, appTitle: text });
+
+    this.setState({
+      currentTab: tab,
+      currentChildTab: child,
+      appTitle: text,
+    });
   }
   updateHeader = (tabname, text) => {
     if (this.state.currentTab === null) {
@@ -45,13 +60,17 @@ class App extends Component {
     this.setState({ showSidebar: !this.state.showSidebar });
   }
   render = () => {
+    const len = this.state.currentProfile.length;
+    let profile = len > 0 ?
+      path.basename(this.state.currentProfile).slice(0, 6) + "..." + this.state.currentProfile.slice(len - 6, len) : "-";
+    profile = profile.toLowerCase();
     return (
       <div className="App">
         <div className="wrapper">
           <Sidebar
             handleChange={this.handleChange}
             showSidebar={this.state.showSidebar}
-            currentProfile="-"
+            currentProfile={profile}
             steamConnected={false}
             ytConnected={false}
           />
@@ -111,7 +130,10 @@ class App extends Component {
                 requiredChildTab="songs-owned"
                 sqliteTable="songs_owned"
                 updateHeader={this.updateChildHeader}
-                resetHeader={this.resetHeader} />
+                resetHeader={this.resetHeader}
+                handleChange={this.updateProfile}
+              />
+
             </div>
           </div>
         </div>

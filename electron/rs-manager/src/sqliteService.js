@@ -41,7 +41,7 @@ export default async function updateSongsOwned(psarcResult) {
   await db.run(sqlstr); // Run the query without returning anything
 }
 
-export async function getSongsOwned(start = 0, count = 10, sortField = "song", sortOrder = "asc", search = "") {
+export async function getSongsOwned(start = 0, count = 10, sortField = "mastery", sortOrder = "desc", search = "") {
   if (db == null) {
     const dbfilename = window.dirname + "/../rsdb.sqlite";
     console.log(dbfilename);
@@ -80,3 +80,7 @@ export async function countSongsOwned() {
   const output = await db.get(sql);
   return output
 }
+window.remote.app.on('window-all-closed', async () => {
+  await saveSongsOwnedDB();
+  console.log("Saved to db..");
+})
