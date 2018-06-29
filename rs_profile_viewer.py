@@ -201,7 +201,7 @@ def open_and_print_profile(file):
 def read_psarc():
     global SongCache
     psarcList = []
-    basePath = "/Users/sandi/Library/Application Support/Steam/steamapps/common/Rocksmith2014/"
+    basePath = "/Users/sandi/Library/Application Support/Steam/steamapps/common/Rocksmith2014/dlc/"
 
     #psarcList.append(basePath + "/songs.psarc")
     #dlcPath = basePath + "/dlc/"
