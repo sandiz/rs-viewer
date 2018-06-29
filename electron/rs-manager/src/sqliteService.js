@@ -80,6 +80,42 @@ export async function countSongsOwned() {
   const output = await db.get(sql);
   return output
 }
+export async function getSongID(ID) {
+  if (db == null) {
+    const dbfilename = window.dirname + "/../rsdb.sqlite";
+    console.log(dbfilename);
+    db = await window.sqlite.open(dbfilename);
+  }
+  const sql = `select distinct song from songs_owned where id='${ID}'`;
+  const output = await db.get(sql);
+  return output.song;
+}
+export async function getArrangmentsMastered() {
+  if (db == null) {
+    const dbfilename = window.dirname + "/../rsdb.sqlite";
+    console.log(dbfilename);
+    db = await window.sqlite.open(dbfilename);
+  }
+  const sql = `select count(mastery) as count from songs_owned where mastery >= 0.95`;
+  const output = await db.get(sql);
+  return output;
+}
+export async function getLeadStats() {
+  const sqlstr = "select l.count as l,lh.count as lh,lm.count as lm,ll.count as ll,up.count as lup from (select count(*) as count from songs_owned where arrangement like '%lead%')l, (select count(*) as count from songs_owned where mastery > .95 AND arrangement like '%lead%') lh, (select count(*) as count from songs_owned where mastery > .90 AND mastery <= .95 AND arrangement like '%lead%') lm, (select count(*) as count from songs_owned where mastery >= .1 AND mastery <= .90 AND arrangement like '%lead%') ll, (select count(*) as count from songs_owned where mastery < .1 AND arrangement like '%lead%') up;"
+  const output = await db.get(sqlstr);
+  return output;
+}
+export async function getRhythmStats() {
+  const sqlstr = "select l.count as r,lh.count as rh,lm.count as rm,ll.count as rl,up.count as rup from (select count(*) as count from songs_owned where arrangement like '%rhythm%')l, (select count(*) as count from songs_owned where mastery > .95 AND arrangement like '%rhythm%') lh, (select count(*) as count from songs_owned where mastery > .90 AND mastery <= .95 AND arrangement like '%rhythm%') lm, (select count(*) as count from songs_owned where mastery >= .1 AND mastery <= .90 AND arrangement like '%rhythm%') ll, (select count(*) as count from songs_owned where mastery < .1 AND arrangement like '%rhythm%') up;"
+  const output = await db.get(sqlstr);
+  return output;
+}
+export async function getBassStats() {
+  const sqlstr = "select l.count as b,lh.count as bh,lm.count as bm,ll.count as bl,up.count as bup from (select count(*) as count from songs_owned where arrangement like '%bass%')l, (select count(*) as count from songs_owned where mastery > .95 AND arrangement like '%bass%') lh, (select count(*) as count from songs_owned where mastery > .90 AND mastery <= .95 AND arrangement like '%bass%') lm, (select count(*) as count from songs_owned where mastery >= .1 AND mastery <= .90 AND arrangement like '%bass%') ll, (select count(*) as count from songs_owned where mastery < .1 AND arrangement like '%bass%') up;"
+  const output = await db.get(sqlstr);
+  return output;
+}
+
 window.remote.app.on('window-all-closed', async () => {
   await saveSongsOwnedDB();
   console.log("Saved to db..");
