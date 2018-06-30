@@ -161,6 +161,7 @@ export async function countSongsOwned() {
     db = await window.sqlite.open(dbfilename);
   }
   const sql = `select count(*) as count, count(distinct song) as songcount from songs_owned`;
+  // console.log(sql);
   const output = await db.get(sql);
   return output
 }
@@ -198,6 +199,68 @@ export async function getBassStats() {
   const sqlstr = "select l.count as b,lh.count as bh,lm.count as bm,ll.count as bl,up.count as bup from (select count(*) as count from songs_owned where arrangement like '%bass%')l, (select count(*) as count from songs_owned where mastery > .95 AND arrangement like '%bass%') lh, (select count(*) as count from songs_owned where mastery > .90 AND mastery <= .95 AND arrangement like '%bass%') lm, (select count(*) as count from songs_owned where mastery >= .1 AND mastery <= .90 AND arrangement like '%bass%') ll, (select count(*) as count from songs_owned where mastery < .1 AND arrangement like '%bass%') up;"
   const output = await db.get(sqlstr);
   return output;
+}
+export async function initSetlistPlaylistDB(dbname) {
+  const dbfilename = window.dirname + "/../rsdb.sqlite";
+  db = await window.sqlite.open(dbfilename);
+  await db.run(`CREATE TABLE IF NOT EXISTS ${dbname} ( uniqkey char, FOREIGN KEY(uniqkey) REFERENCES songs_owned(uniqkey));`);
+}
+export async function initSetlistDB() {
+  const dbfilename = window.dirname + "/../rsdb.sqlite";
+  db = await window.sqlite.open(dbfilename);
+  await db.run("CREATE TABLE IF NOT EXISTS setlist_meta (key char primary key, name char);");
+  await db.run("REPLACE INTO setlist_meta VALUES('setlist_practice','Practice List');")
+  await initSetlistPlaylistDB("setlist_practice");
+  await db.run("REPLACE INTO setlist_meta VALUES('setlist_favorites','Favorites');")
+  await initSetlistPlaylistDB("setlist_favorites");
+}
+export async function getAllSetlist() {
+  await initSetlistDB();
+  const sql = "SELECT * FROM setlist_meta order by name collate nocase;"
+  const all = await db.all(sql);
+  return all;
+}
+
+export async function getSongCountFromPlaylistDB(dbname) {
+  await initSetlistPlaylistDB(dbname);
+  const sql = `SELECT count(*) as songcount, count(distinct song) as count FROM ${dbname} order by uniqkey collate nocase;`
+  const all = await db.get(sql);
+  return all;
+}
+
+export async function getSongsFromPlaylistDB(dbname, start = 0, count = 10, sortField = "mastery", sortOrder = "desc", search = "") {
+  if (db == null) {
+    const dbfilename = window.dirname + "/../rsdb.sqlite";
+    db = await window.sqlite.open(dbfilename);
+  }
+  let sql;
+  if (search === "") {
+    sql = `select c.acount as acount, c.songcount as songcount, song, artist, arrangement, mastery,
+          count, difficulty, id, lastConversionTime from songs_owned,  (
+          SELECT count(*) as acount, count(distinct song) as songcount
+            FROM songs_owned
+            JOIN ${dbname} ON ${dbname}.uniqkey = songs_owned.uniqkey
+          ) c 
+          JOIN ${dbname} ON ${dbname}.uniqkey = songs_owned.uniqkey
+          ORDER BY ${sortField} ${sortOrder} LIMIT ${start},${count}
+          `;
+  }
+  else {
+    sql = `select c.acount as acount, c.songcount as songcount, song, artist, arrangement, mastery,
+          count, difficulty, id, lastConversionTime from songs_owned, (
+          SELECT count(*) as acount, count(distinct song) as songcount
+            FROM songs_owned
+            JOIN ${dbname} ON ${dbname}.uniqkey = songs_owned.uniqkey
+            where song like '%${escape(search)}%' or artist like '%${escape(search)}%'
+          ) c 
+          JOIN ${dbname} ON ${dbname}.uniqkey = songs_owned.uniqkey
+          where song like '%${escape(search)}%' or artist like '%${escape(search)}%'
+          ORDER BY ${sortField} ${sortOrder} LIMIT ${start},${count}
+          `;
+  }
+  //console.log(sql);
+  const output = await db.all(sql);
+  return output
 }
 
 window.remote.app.on('window-all-closed', async () => {

@@ -156,6 +156,7 @@ export default class DashboardView extends React.Component {
         blw: this.getStatsWidth(bassStats.bl, 0, bassStats.b),
         buw: this.getStatsWidth(bup, 0, bassStats.b),
       })
+      this.props.updateHeader(this.tabname, "Rocksmith 2014 Dashboard");
     }
   }
 

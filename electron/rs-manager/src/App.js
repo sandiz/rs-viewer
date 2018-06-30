@@ -5,8 +5,9 @@ import PSARCView from './Components/psarcView'
 import SonglistView from './Components/songlistView'
 import DashboardView from './Components/dashboardView'
 import getProfileConfig from './configService';
-import './App.css'
 import SongAvailableView from './Components/songavailableView';
+import SetlistView from './Components/setlistView';
+import './App.css'
 
 class App extends Component {
   constructor(props) {
@@ -47,7 +48,8 @@ class App extends Component {
   }
   updateChildHeader = (tabname, childname, text) => {
     if (tabname === null || this.state.currentChildTab === null) {
-      console.log("");
+      //eslint-disable-next-line
+      return;
     }
     else if (tabname === this.state.currentTab.id && childname === this.state.currentChildTab.id) {
       this.setState({ appTitle: text });
@@ -150,6 +152,13 @@ class App extends Component {
                 updateHeader={this.updateChildHeader}
                 resetHeader={this.resetHeader}
                 handleChange={this.updateProfile} />
+              <SetlistView
+                currentTab={this.state.currentTab}
+                currentChildTab={this.state.currentChildTab}
+                requiredTab="tab-setlist"
+                updateHeader={this.updateChildHeader}
+                resetHeader={this.resetHeader}
+              />
             </div>
           </div>
         </div>

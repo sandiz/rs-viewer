@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types';
+import { initSetlistDB, getAllSetlist } from '../sqliteService';
 
 const TabsData = [
   {
@@ -24,16 +25,7 @@ const TabsData = [
   {
     id: 'tab-setlist',
     name: 'Setlist',
-    child: [
-      {
-        name: 'Practice List',
-        id: 'setlist-practice',
-      },
-      {
-        name: 'Gigs to play',
-        id: 'setlist-gigs',
-      },
-    ],
+    child: [],
   },
   {
     id: 'tab-psarc',
@@ -48,16 +40,24 @@ export default class Sidebar extends React.Component {
     this.collapseClass = 'collapse list-unstyled'
     this.expandedClass = 'list-unstyled'
     this.state = {
-      currentTab: 'tab-songs',
+      currentTab: 'tab-dashboard',
       expandedTabs: [],
-      currentChildTab: 'songs-purchased',
+      currentChildTab: '',
     }
   }
-  componentWillMount() {
+  componentWillMount = async () => {
+    await initSetlistDB();
+    const setlists = await getAllSetlist();
+    for (let i = 0; i < setlists.length; i += 1) {
+      const setlist = setlists[i];
+      const setlistObj = { name: setlist.name, id: setlist.key }
+      TabsData[2].child.push(setlistObj);
+    }
     // default tabs on startup
-    //this.props.handleChange(TabsData[0]);
-    this.props.handleChange(TabsData[1], TabsData[1].child[1])
-    this.toggleActive(TabsData[1]);
+    this.props.handleChange(TabsData[0]);
+    this.toggleActive(TabsData[0]);
+    //this.props.handleChange(TabsData[2], TabsData[2].child[0])
+    //this.toggleActive(TabsData[2]);
   }
   setChildActive(val, cid) {
     this.setState({ currentTab: val.id, currentChildTab: cid.id })
