@@ -11,14 +11,14 @@ export default class DashboardView extends React.Component {
     super(props);
     this.tabname = 'tab-dashboard';
     this.state = {
-      totalPlayingTime: 2000,
-      maxConsecutiveDays: 279,
-      longestStreak: 970,
-      highestSolo: 100,
-      songsOwned: 400,
-      songPlays: 2000,
-      mostPlayed: 'Mr Brightside',
-      arrMaster: 500,
+      totalPlayingTime: 0,
+      maxConsecutiveDays: 0,
+      longestStreak: 0,
+      highestSolo: 0,
+      songsOwned: 0,
+      songPlays: 0,
+      mostPlayed: '-',
+      arrMaster: 0,
       l: 0,
       lh: 0,
       lm: 0,

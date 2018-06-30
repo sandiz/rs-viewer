@@ -39,11 +39,11 @@ function countFormmatter(cell, row) {
   return <span>{cell}</span>;
 }
 //eslint-disable-next-line
-const RemoteAll = ({ columns, data, page, sizePerPage, onTableChange, totalSize, rowEvents }) => (
+export const RemoteAll = ({ keyField, columns, data, page, sizePerPage, onTableChange, totalSize, rowEvents }) => (
   <div>
     <BootstrapTable
       remote={{ pagination: true }}
-      keyField="id"
+      keyField={keyField}
       data={data}
       columns={columns}
       filter={filterFactory()}
@@ -192,6 +192,7 @@ export default class SonglistView extends React.Component {
     };
   }
   componentDidMount = async () => {
+    await initSongsOwnedDB();
     const so = await countSongsOwned();
     this.props.updateHeader(
       this.tabname,
@@ -337,6 +338,7 @@ export default class SonglistView extends React.Component {
           </div>
           <div>
             <RemoteAll
+              keyField="id"
               data={songs}
               page={page}
               sizePerPage={sizePerPage}

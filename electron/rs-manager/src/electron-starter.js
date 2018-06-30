@@ -13,7 +13,8 @@ function createWindow() {
         height: 1036,
         icon: path.join(__dirname, "./icons/png/icon-1024x1024.png"),
         webPreferences: {
-            preload: __dirname + "/preload.js"
+            preload: __dirname + "/preload.js",
+            webSecurity: false,
         }
     });
     //mainWindow.maximize();

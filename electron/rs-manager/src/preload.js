@@ -6,3 +6,25 @@ window.electronFS = window.remote.require('fs');
 window.spawn = require("await-spawn");
 window.dirname = __dirname;
 window.sqlite = require("sqlite");
+window.fetch = fetch;
+window.http = require("http");
+
+const rp = require('request-promise');
+
+
+
+window.request = async function (uri, cookie, cookieurl) {
+
+    let cookiejar = rp.jar();
+    //cookiejar.setCookie('steamLoginSecure=76561197985613182%7C%7C4B2D9C3BFDDB12750CD0BB9086C188AAD7051295', 'https://store.steampowered.com');
+    cookiejar.setCookie(cookie, cookieurl);
+    const options = {
+        //uri: 'https://store.steampowered.com/dynamicstore/userdata/',
+        uri,
+        jar: cookiejar // Tells rp to include cookies in jar that match uri
+    };
+    const d = await rp(options);
+    return d;
+}
+
+

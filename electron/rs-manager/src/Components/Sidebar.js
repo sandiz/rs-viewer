@@ -48,16 +48,16 @@ export default class Sidebar extends React.Component {
     this.collapseClass = 'collapse list-unstyled'
     this.expandedClass = 'list-unstyled'
     this.state = {
-      currentTab: 'tab-dashboard',
+      currentTab: 'tab-songs',
       expandedTabs: [],
-      currentChildTab: null,
+      currentChildTab: 'songs-purchased',
     }
   }
   componentWillMount() {
     // default tabs on startup
-    this.props.handleChange(TabsData[0]);
-    //this.props.handleChange(TabsData[1], TabsData[1].child[0])
-    this.toggleActive(TabsData[0]);
+    //this.props.handleChange(TabsData[0]);
+    this.props.handleChange(TabsData[1], TabsData[1].child[1])
+    this.toggleActive(TabsData[1]);
   }
   setChildActive(val, cid) {
     this.setState({ currentTab: val.id, currentChildTab: cid.id })

@@ -1,9 +1,94 @@
 let db = null;
 export async function initSongsOwnedDB() {
   const dbfilename = window.dirname + "/../rsdb.sqlite";
-  console.log(dbfilename);
   db = await window.sqlite.open(dbfilename);
-  await db.run("CREATE TABLE IF NOT EXISTS songs_owned (album char, artist char, song char, arrangement char, json char, psarc char, dlc char, sku char, difficulty float, dlckey char, songkey char, id char, uniqkey char primary key, mastery float, count int, lastConversionTime real);");
+  await db.run("CREATE TABLE IF NOT EXISTS songs_owned (album char, artist char, song char, arrangement char, json char, psarc char, dlc char, sku char, difficulty float, dlckey char, songkey char, id char, uniqkey char primary key, mastery float default 0, count int default 0, lastConversionTime real);");
+}
+export async function initSongsAvailableDB() {
+  const dbfilename = window.dirname + "/../rsdb.sqlite";
+  db = await window.sqlite.open(dbfilename);
+  await db.run("CREATE TABLE IF NOT EXISTS songs_available (appid char primary key, name char, release_date float, owned boolean default false);");
+}
+export async function addToSteamDLCCatalog(dlc, name, releaseDate) {
+  let sqlstr = ";";
+  let date = Date.parse(releaseDate);
+  //eslint-disable-next-line
+  if (isNaN(date)) { date = 0; }
+  const owned = false;
+  sqlstr += `REPLACE INTO songs_available (appid, name, release_date, owned) VALUES ('${dlc}','${name}', ${date}, '${owned}');`
+  //});
+  console.log(sqlstr);
+  await db.run(sqlstr); // Run the query without returning anything
+}
+export async function getDLCDetails(start = 0, count = 10, sortField = "release_date", sortOrder = "desc", search = "", owned = "") {
+  if (db == null) {
+    const dbfilename = window.dirname + "/../rsdb.sqlite";
+    db = await window.sqlite.open(dbfilename);
+  }
+  let sql;
+  let ownedstring = "";
+  if (owned !== "") {
+    ownedstring = `where owned='${owned}'`
+  }
+  let allownedstring = "";
+  if (owned !== "") {
+    allownedstring = `and owned='${owned}'`
+  }
+  if (search === "") {
+    sql = `select c.acount as acount,d.nopackcount as nopackcount, appid, name, release_date, owned
+           from songs_available,  (
+           SELECT count(*) as acount
+            FROM songs_available
+            ${ownedstring}
+          ) c , (
+           SELECT count(*) as nopackcount
+            FROM songs_available
+            where name NOT like '%${escape("Song Pack")}%' ${allownedstring}
+          ) d
+          ${ownedstring}
+          ORDER BY ${sortField} ${sortOrder} LIMIT ${start},${count}`;
+  }
+  else {
+    sql = `select c.acount as acount, d.nopackcount as nopackcount, appid, name, release_date, owned from songs_available, (
+          SELECT count(*) as acount 
+            FROM songs_available
+            where (name like '%${escape(search)}%' or appid like '%${escape(search)}%')
+            ${allownedstring}
+          ) c , (
+           SELECT count(*) as nopackcount
+            FROM songs_available
+            where (name NOT like '%${escape("Song Pack")}%' AND name like '%${escape(search)}%' or appid like '%${escape(search)}%') ${allownedstring}
+          ) d
+          where (name like '%${escape(search)}%' or appid like '%${escape(search)}%') ${allownedstring}
+          ORDER BY ${sortField} ${sortOrder} LIMIT ${start},${count}`;
+  }
+  const output = await db.all(sql);
+  return output
+}
+export async function isDLCInDB(dlc) {
+  let sqlstr = "";
+  sqlstr += `SELECT count(appid) as count from songs_available where appid LIKE '%${dlc}%'`
+  //});
+  //console.log(sqlstr);
+  const res = await db.get(sqlstr); // Run the query without returning anything
+  if (res.count === 0) {
+    return false;
+  }
+  return true;
+}
+export async function updateOwnedInDB(dlc) {
+  let sqlstr = "";
+  sqlstr += `UPDATE songs_available SET owned='true' where appid LIKE ${dlc}`;
+  await db.run(sqlstr);
+}
+export async function countSongsAvailable() {
+  if (db == null) {
+    const dbfilename = window.dirname + "/../rsdb.sqlite";
+    db = await window.sqlite.open(dbfilename);
+  }
+  const sql = `select count(*) as count from songs_available`;
+  const output = await db.get(sql);
+  return output
 }
 
 export async function saveSongsOwnedDB() {
@@ -44,7 +129,6 @@ export default async function updateSongsOwned(psarcResult) {
 export async function getSongsOwned(start = 0, count = 10, sortField = "mastery", sortOrder = "desc", search = "") {
   if (db == null) {
     const dbfilename = window.dirname + "/../rsdb.sqlite";
-    console.log(dbfilename);
     db = await window.sqlite.open(dbfilename);
   }
   let sql;
@@ -66,7 +150,7 @@ export async function getSongsOwned(start = 0, count = 10, sortField = "mastery"
           where song like '%${escape(search)}%' or artist like '%${escape(search)}%'
           ORDER BY ${sortField} ${sortOrder} LIMIT ${start},${count}`;
   }
-  console.log(sql);
+  //console.log(sql);
   const output = await db.all(sql);
   return output
 }

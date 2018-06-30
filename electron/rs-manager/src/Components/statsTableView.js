@@ -86,13 +86,13 @@ StatsTableView.propTypes = {
   unplayedwidth: PropTypes.number,
 }
 StatsTableView.defaultProps = {
-  total: 999,
-  highscoretotal: 30,
-  highscorewidth: 30,
-  mediumscoretotal: 240,
-  mediumscorewidth: 50,
-  lowscoretotal: 400,
-  lowscorewidth: 75,
-  unplayedtotal: 600,
-  unplayedwidth: 100,
+  total: 0,
+  highscoretotal: 0,
+  highscorewidth: 0,
+  mediumscoretotal: 0,
+  mediumscorewidth: 0,
+  lowscoretotal: 0,
+  lowscorewidth: 0,
+  unplayedtotal: 0,
+  unplayedwidth: 0,
 }

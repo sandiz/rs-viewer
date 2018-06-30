@@ -6,6 +6,7 @@ import SonglistView from './Components/songlistView'
 import DashboardView from './Components/dashboardView'
 import getProfileConfig from './configService';
 import './App.css'
+import SongAvailableView from './Components/songavailableView';
 
 class App extends Component {
   constructor(props) {
@@ -140,6 +141,15 @@ class App extends Component {
                 resetHeader={this.resetHeader}
                 handleChange={this.updateProfile}
               />
+              <SongAvailableView
+                currentTab={this.state.currentTab}
+                currentChildTab={this.state.currentChildTab}
+                requiredTab="tab-songs"
+                requiredChildTab="songs-purchased"
+                sqliteTable="songs_available"
+                updateHeader={this.updateChildHeader}
+                resetHeader={this.resetHeader}
+                handleChange={this.updateProfile} />
             </div>
           </div>
         </div>
