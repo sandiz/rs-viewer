@@ -366,11 +366,9 @@ tbody tr:nth-child(odd) {
 }
 .width-75-2 {
   width: 66% !important;
-  height: 70% !important;
 }
 .width-52 {
   width: 66% !important;
-  height: 52% !important;
 }
 
 .modal-window header {

@@ -40,7 +40,7 @@ export default class SetlistView extends React.Component {
       songs: [],
       page: 1,
       totalSize: 0,
-      sizePerPage: 25,
+      sizePerPage: 100,
       showDetail: false,
       showSong: '',
       showArtist: '',

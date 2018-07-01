@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types';
+import { getAllSetlist, saveSongToSetlist } from '../sqliteService';
 
 export default class SongDetailView extends React.Component {
   constructor(props) {
@@ -9,6 +10,8 @@ export default class SongDetailView extends React.Component {
       showMusicVideo: false,
       pturl: '',
       mvurl: '',
+      setlists: [],
+      currentSetlist: '',
     }
     this.ptplayer = null
     this.mvplayer = null
@@ -23,6 +26,7 @@ export default class SongDetailView extends React.Component {
       console.log("searching for ", ptsearchterm, mvsearchterm);
       this.getYoutubeResult(ptsearchterm, "div_playthrough");
       this.getYoutubeResult(mvsearchterm, "div_musicvideo");
+      await this.generateSetlistOptions();
     }
     return nextprops.showDetail;
   }
@@ -67,8 +71,26 @@ export default class SongDetailView extends React.Component {
   handleHide = () => {
     this.props.close();
   }
+  addToSetlist = async (e) => {
+    const { song, artist } = this.props;
+    await saveSongToSetlist(this.state.currentSetlist, unescape(song), unescape(artist));
+  }
+  saveSetlist = (e) => {
+    this.setState({ currentSetlist: e.target.value });
+  }
+  generateSetlistOptions = async () => {
+    const items = []
+    const output = await getAllSetlist();
+    for (let i = 0; i < output.length; i += 1) {
+      items.push(<option key={output[i].key} value={output[i].key}>{output[i].name}</option>);
+      //here I will be creating my options dynamically based on
+      //what props are currently passed to the parent component
+    }
+    this.setState({ setlists: items, currentSetlist: output[0].key });
+  }
   render = () => {
     const setlistyle = "extraPadding download " + (this.props.isSetlist ? "" : "hidden");
+    const songliststyle = "extraPadding download " + (this.props.isSongview ? "" : "hidden");
     const ptstyle = "extraPadding download " + (!this.state.showPlaythrough ? "" : "isDisabled");
     const mvstyle = "extraPadding download " + (!this.state.showMusicVideo ? "" : "isDisabled");
     const ptdivstyle = this.state.showPlaythrough ? "dblock" : "hidden";
@@ -135,6 +157,14 @@ export default class SongDetailView extends React.Component {
               className={setlistyle}>
               Remove from Setlist
             </a>
+            <a
+              onClick={async () => { this.addToSetlist(); this.props.close(); }}
+              className={songliststyle}>
+              Add to Setlist
+            </a>
+            <select onChange={this.saveSetlist} style={{ margin: 12 + 'px' }}>
+              {this.state.setlists}
+            </select>
           </div>
         </div>
       </div >

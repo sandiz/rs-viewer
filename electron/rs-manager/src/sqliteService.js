@@ -274,6 +274,18 @@ export async function removeSongFromSetlist(dbname, song, artist, album) {
     await db.all(sql);
   }
 }
+export async function saveSongToSetlist(setlist, song, artist) {
+  console.log(setlist);
+  let sql = `select uniqkey from songs_owned where song like '%${escape(song)}%' and artist like '%${escape(artist)}%'`
+  console.log(sql)
+  const op = await db.all(sql);
+  for (let i = 0; i < op.length; i += 1) {
+    const uniq = op[i].uniqkey;
+    sql = `replace into '${setlist}' values ('${uniq}')`;
+    //eslint-disable-next-line
+    await db.run(sql)
+  }
+}
 
 window.remote.app.on('window-all-closed', async () => {
   await saveSongsOwnedDB();
