@@ -89,7 +89,7 @@ export default class SongAvailableView extends React.Component {
       },
     ]
   }
-  componentWillMount = async () => {
+  componentDidMount = async () => {
     await initSongsAvailableDB();
     const so = await countSongsAvailable();
     this.props.updateHeader(
