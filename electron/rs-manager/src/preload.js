@@ -13,15 +13,18 @@ const rp = require('request-promise');
 
 
 
-window.request = async function (uri, cookie, cookieurl) {
+window.request = async function (uri, cookie, cookieurl, qs) {
 
     let cookiejar = rp.jar();
     //cookiejar.setCookie('steamLoginSecure=76561197985613182%7C%7C4B2D9C3BFDDB12750CD0BB9086C188AAD7051295', 'https://store.steampowered.com');
-    cookiejar.setCookie(cookie, cookieurl);
+    if (cookie != "") {
+        cookiejar.setCookie(cookie, cookieurl);
+    }
     const options = {
         //uri: 'https://store.steampowered.com/dynamicstore/userdata/',
         uri,
-        jar: cookiejar // Tells rp to include cookies in jar that match uri
+        jar: cookiejar, // Tells rp to include cookies in jar that match uri,
+        qs,
     };
     const d = await rp(options);
     return d;

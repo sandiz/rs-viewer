@@ -364,6 +364,14 @@ tbody tr:nth-child(odd) {
   width: 76% !important;
   height: 65% !important;
 }
+.width-75-2 {
+  width: 66% !important;
+  height: 70% !important;
+}
+.width-52 {
+  width: 66% !important;
+  height: 52% !important;
+}
 
 .modal-window header {
   font-weight: bold;
@@ -477,6 +485,9 @@ tbody tr:nth-child(odd) {
     max-height: 100px;
     max-width: 100px;
 }  
+.smallIcon {
+  background-size: 50%;
+}
 .ta-center {
   text-align: center;
  }
@@ -540,4 +551,7 @@ hr {
 }
 .col-md-3 {
     flex: 0 0 31% !important;
+}
+.dblock {
+  display:block;
 }

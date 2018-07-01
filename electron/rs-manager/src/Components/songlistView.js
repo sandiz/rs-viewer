@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import readProfile from '../steamprofileService';
 import { getSongsOwned, countSongsOwned, updateMasteryandPlayed, initSongsOwnedDB } from '../sqliteService';
 import getProfileConfig, { updateProfileConfig } from '../configService';
+import SongDetailView from './songdetailView';
 
 const path = require('path');
 
@@ -21,12 +22,17 @@ function round100Formatter(cell, row) {
   if (cell == null) { cell = 0; }
   cell = (cell * 100).toFixed(2);
   if (cell >= 100) { cell = 100; }
+  let color = "lightgreen";
+  if (cell > 95) { color = "lightgreen" }
+  else if (cell < 95 && cell > 90) { color = "#C8F749" }
+  else color = "yellow";
+
   const width = cell + "%";
   return (<span>
     <span className="mastery">{cell}%</span>
     <span>
       <svg height="100%">
-        <rect width={width} height="100%" style={{ fill: "lightgreen", strokeWidth: 2, stroke: 'rgb(0, 0, 0)' }} />
+        <rect width={width} height="100%" style={{ fill: color, strokeWidth: 2, stroke: 'rgb(0, 0, 0)' }} />
         <text x="40%" y="18" fontSize="15px">{cell} %</text>
       </svg>
     </span>
@@ -81,6 +87,9 @@ export default class SonglistView extends React.Component {
       page: 1,
       totalSize: 0,
       sizePerPage: 25,
+      showDetail: false,
+      showSong: '',
+      showArtist: '',
     };
     this.search = "";
     this.columns = [
@@ -110,6 +119,18 @@ export default class SonglistView extends React.Component {
       {
         dataField: "artist",
         text: "Artist",
+        style: (cell, row, rowIndex, colIndex) => {
+          return {
+            width: '25%',
+            cursor: 'pointer',
+          };
+        },
+        sort: true,
+        formatter: unescapeFormatter,
+      },
+      {
+        dataField: "album",
+        text: "Album",
         style: (cell, row, rowIndex, colIndex) => {
           return {
             width: '25%',
@@ -156,7 +177,7 @@ export default class SonglistView extends React.Component {
       {
         classes: (cell, row, rowIndex, colIndex) => {
           const def = "iconPreview difficulty ";
-          let diff = "";
+          let diff = "diff_0";
           if (cell <= 20) {
             diff = "diff_0"
           }
@@ -187,7 +208,12 @@ export default class SonglistView extends React.Component {
     ];
     this.rowEvents = {
       onClick: (e, row, rowIndex) => {
-        //this.handleShow(row);
+        this.setState({
+          showDetail: true,
+          showSong: row.song,
+          showArtist: row.artist,
+          showAlbum: row.album,
+        })
       },
     };
   }
@@ -346,6 +372,17 @@ export default class SonglistView extends React.Component {
               onTableChange={this.handleTableChange}
               columns={this.columns}
               rowEvents={this.rowEvents}
+            />
+          </div>
+          <div>
+            <SongDetailView
+              song={this.state.showSong}
+              artist={this.state.showArtist}
+              album={this.state.showAlbum}
+              showDetail={this.state.showDetail}
+              close={() => this.setState({ showDetail: false })}
+              isSongview
+              isSetlist={false}
             />
           </div>
         </div>

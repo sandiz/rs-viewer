@@ -14,6 +14,9 @@ function sizeFormatter(cell, row) {
 function dateFormatter(cell, row) {
   return <span>{new Date(cell).toLocaleDateString()}</span>;
 }
+function difficultyFormatter(cell, row) {
+  return <span />;
+}
 const columns = [
   {
     dataField: "id",
@@ -367,13 +370,35 @@ export default class PSARCView extends React.Component {
                       },
                     },
                     {
+                      classes: (cell, row, rowIndex, colIndex) => {
+                        const def = "iconPreview smallIcon difficulty ";
+                        let diff = "";
+                        if (cell <= 20) {
+                          diff = "diff_0"
+                        }
+                        else if (cell >= 21 && cell <= 40) {
+                          diff = "diff_1"
+                        }
+                        else if (cell >= 41 && cell <= 60) {
+                          diff = "diff_2"
+                        }
+                        else if (cell >= 61 && cell <= 80) {
+                          diff = "diff_3"
+                        }
+                        else if (cell >= 81) {
+                          diff = "diff_4"
+                        }
+                        return def + diff;
+                      },
                       dataField: "difficulty",
                       text: "Difficulty",
                       style: (cell, row, rowIndex, colIndex) => {
                         return {
-                          width: '15%',
+                          width: '10%',
                         };
                       },
+                      sort: true,
+                      formatter: difficultyFormatter,
                     },
                   ]
                   const tableData = [];

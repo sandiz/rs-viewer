@@ -1,7 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types';
-import { getSongsFromPlaylistDB } from '../sqliteService';
+import { getSongsFromPlaylistDB, removeSongFromSetlist } from '../sqliteService';
 import { RemoteAll } from './songlistView';
+import SongDetailView from './songdetailView';
 
 
 function unescapeFormatter(cell, row) {
@@ -40,6 +41,9 @@ export default class SetlistView extends React.Component {
       page: 1,
       totalSize: 0,
       sizePerPage: 25,
+      showDetail: false,
+      showSong: '',
+      showArtist: '',
     };
     this.search = "";
     this.columns = [
@@ -69,6 +73,18 @@ export default class SetlistView extends React.Component {
       {
         dataField: "artist",
         text: "Artist",
+        style: (cell, row, rowIndex, colIndex) => {
+          return {
+            width: '25%',
+            cursor: 'pointer',
+          };
+        },
+        sort: true,
+        formatter: unescapeFormatter,
+      },
+      {
+        dataField: "album",
+        text: "Album",
         style: (cell, row, rowIndex, colIndex) => {
           return {
             width: '25%',
@@ -115,7 +131,7 @@ export default class SetlistView extends React.Component {
       {
         classes: (cell, row, rowIndex, colIndex) => {
           const def = "iconPreview difficulty ";
-          let diff = "";
+          let diff = "diff_0";
           if (cell <= 20) {
             diff = "diff_0"
           }
@@ -146,11 +162,17 @@ export default class SetlistView extends React.Component {
     ];
     this.rowEvents = {
       onClick: (e, row, rowIndex) => {
-        //this.handleShow(row);
+        this.setState({
+          showDetail: true,
+          showSong: row.song,
+          showArtist: row.artist,
+          showAlbum: row.album,
+        })
       },
     };
     this.lastChildID = ""
   }
+
   shouldComponentUpdate = async (nextprops, nextstate) => {
     if (nextprops.currentChildTab === null) { return false; }
     if (this.lastChildID === nextprops.currentChildTab.id) { return false; }
@@ -209,6 +231,23 @@ export default class SetlistView extends React.Component {
     }
   }
 
+  removeFromSetlist = async () => {
+    console.log("removing ", this.state.showSong, this.state.showArtist, this.state.showAlbum);
+    await removeSongFromSetlist(
+      this.lastChildID,
+      this.state.showSong,
+      this.state.showArtist,
+      this.state.showAlbum,
+    );
+    this.handleTableChange('filter', {
+      page: 1,
+      sizePerPage: this.state.sizePerPage,
+      filters: { search: this.search },
+      sortField: null,
+      sortOrder: null,
+    })
+  }
+
   render = () => {
     if (this.props.currentTab === null) {
       return null;
@@ -242,6 +281,17 @@ export default class SetlistView extends React.Component {
               onTableChange={this.handleTableChange}
               columns={this.columns}
               rowEvents={this.rowEvents}
+            />
+          </div>
+          <div>
+            <SongDetailView
+              song={this.state.showSong}
+              artist={this.state.showArtist}
+              album={this.state.showAlbum}
+              showDetail={this.state.showDetail}
+              close={() => this.setState({ showDetail: false })}
+              isSetlist
+              removeFromSetlist={this.removeFromSetlist}
             />
           </div>
         </div>

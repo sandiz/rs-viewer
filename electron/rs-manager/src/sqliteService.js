@@ -133,7 +133,7 @@ export async function getSongsOwned(start = 0, count = 10, sortField = "mastery"
   }
   let sql;
   if (search === "") {
-    sql = `select c.acount as acount, c.songcount as songcount, song, artist, arrangement, mastery,
+    sql = `select c.acount as acount, c.songcount as songcount, song, album, artist, arrangement, mastery,
           count, difficulty, uniqkey, id, lastConversionTime from songs_owned,  (
           SELECT count(*) as acount, count(distinct song) as songcount
             FROM songs_owned
@@ -141,13 +141,13 @@ export async function getSongsOwned(start = 0, count = 10, sortField = "mastery"
           ORDER BY ${sortField} ${sortOrder} LIMIT ${start},${count}`;
   }
   else {
-    sql = `select c.acount as acount, c.songcount as songcount, song, artist, arrangement, mastery,
+    sql = `select c.acount as acount, c.songcount as songcount, song, album, artist, arrangement, mastery,
           count, difficulty, uniqkey, id, lastConversionTime from songs_owned, (
           SELECT count(*) as acount, count(distinct song) as songcount
             FROM songs_owned
-            where song like '%${escape(search)}%' or artist like '%${escape(search)}%'
+            where song like '%${escape(search)}%' or artist like '%${escape(search)}%' or album like '%${escape(search)}%'
           ) c 
-          where song like '%${escape(search)}%' or artist like '%${escape(search)}%'
+          where song like '%${escape(search)}%' or artist like '%${escape(search)}%' or album like '%${escape(search)}%'
           ORDER BY ${sortField} ${sortOrder} LIMIT ${start},${count}`;
   }
   //console.log(sql);
@@ -235,7 +235,7 @@ export async function getSongsFromPlaylistDB(dbname, start = 0, count = 10, sort
   }
   let sql;
   if (search === "") {
-    sql = `select c.acount as acount, c.songcount as songcount, song, artist, arrangement, mastery,
+    sql = `select c.acount as acount, c.songcount as songcount, song, artist, album, arrangement, mastery,
           count, difficulty, id, lastConversionTime from songs_owned,  (
           SELECT count(*) as acount, count(distinct song) as songcount
             FROM songs_owned
@@ -246,21 +246,33 @@ export async function getSongsFromPlaylistDB(dbname, start = 0, count = 10, sort
           `;
   }
   else {
-    sql = `select c.acount as acount, c.songcount as songcount, song, artist, arrangement, mastery,
+    sql = `select c.acount as acount, c.songcount as songcount, song, artist, album, arrangement, mastery,
           count, difficulty, id, lastConversionTime from songs_owned, (
           SELECT count(*) as acount, count(distinct song) as songcount
             FROM songs_owned
             JOIN ${dbname} ON ${dbname}.uniqkey = songs_owned.uniqkey
-            where song like '%${escape(search)}%' or artist like '%${escape(search)}%'
+            where song like '%${escape(search)}%' or artist like '%${escape(search)}%' or album like '%${escape(search)}%'
           ) c 
           JOIN ${dbname} ON ${dbname}.uniqkey = songs_owned.uniqkey
-          where song like '%${escape(search)}%' or artist like '%${escape(search)}%'
+          where song like '%${escape(search)}%' or artist like '%${escape(search)}%' or album like '%${escape(search)}%'
           ORDER BY ${sortField} ${sortOrder} LIMIT ${start},${count}
           `;
   }
   //console.log(sql);
   const output = await db.all(sql);
   return output
+}
+
+export async function removeSongFromSetlist(dbname, song, artist, album) {
+  let sql = `select uniqkey from songs_owned where song like '%${song}%' and artist like '%${artist}%' and album like '%${album}%'`;
+  const op = await db.all(sql)
+  sql = "";
+  for (let i = 0; i < op.length; i += 1) {
+    const uniq = op[i].uniqkey;
+    sql = `DELETE FROM '${dbname}' where uniqkey='${uniq}';`
+    //eslint-disable-next-line
+    await db.all(sql);
+  }
 }
 
 window.remote.app.on('window-all-closed', async () => {
