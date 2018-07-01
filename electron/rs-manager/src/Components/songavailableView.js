@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { initSongsAvailableDB, isDLCInDB, addToSteamDLCCatalog, getDLCDetails, countSongsAvailable, updateOwnedInDB } from '../sqliteService';
 import { RemoteAll } from './songlistView';
 import { getOwnedPackages } from '../steamprofileService';
+import SongDetailView from './songdetailView';
 
 export function replaceRocksmithTerms(str) {
   return str.replace("Rocksmith® 2014 Edition – Remastered –", "").replace("Rocksmith® 2014 – ", "").replace("Rocksmith® 2014 Edition – Remastered -", "").replace("Rocksmith® 2014 Edition - Remastered –", "");
@@ -16,9 +17,21 @@ export default class SongAvailableView extends React.Component {
       dlcs: [],
       page: 1,
       totalSize: 0,
-      sizePerPage: 25,
+      sizePerPage: 100,
+      randompackappid: '',
+      randompack: '',
+      showsongpackpreview: false,
     }
     this.search = "";
+    this.rowEvents = {
+      onClick: (e, row, rowIndex) => {
+        this.setState({
+          showsongpackpreview: true,
+          randompackappid: unescape(row.appid),
+          randompack: replaceRocksmithTerms(unescape(row.name)),
+        });
+      },
+    };
     this.columns = [
       {
         dataField: "appid",
@@ -26,6 +39,7 @@ export default class SongAvailableView extends React.Component {
         style: (cell, row, rowIndex, colIndex) => {
           return {
             width: '25%',
+            cursor: 'pointer',
           };
         },
         sort: true,
@@ -36,6 +50,7 @@ export default class SongAvailableView extends React.Component {
         style: (cell, row, rowIndex, colIndex) => {
           return {
             width: '55%',
+            cursor: 'pointer',
           };
         },
         formatter: (cell, row) => {
@@ -50,6 +65,7 @@ export default class SongAvailableView extends React.Component {
         style: (cell, row, rowIndex, colIndex) => {
           return {
             width: '25%',
+            cursor: 'pointer',
           };
         },
         sort: true,
@@ -66,6 +82,7 @@ export default class SongAvailableView extends React.Component {
         style: (cell, row, rowIndex, colIndex) => {
           return {
             width: '15%',
+            cursor: 'pointer',
           };
         },
         sort: true,
@@ -287,11 +304,25 @@ export default class SongAvailableView extends React.Component {
               keyField="appid"
               data={dlcs}
               page={page}
+              classes="psarcTable"
               sizePerPage={sizePerPage}
               totalSize={this.state.totalSize}
               onTableChange={this.handleTableChange}
               columns={this.columns}
               rowEvents={this.rowEvents}
+            />
+          </div>
+          <div>
+            <SongDetailView
+              song={this.state.randompack}
+              artist="Rocksmith"
+              album="Steam"
+              showDetail={this.state.showsongpackpreview}
+              close={() => this.setState({ showsongpackpreview: false })}
+              isSongview
+              isSongpack
+              dlcappid={this.state.randompackappid}
+              isSetlist={false}
             />
           </div>
         </div>

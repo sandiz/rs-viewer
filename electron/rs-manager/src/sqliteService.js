@@ -92,7 +92,7 @@ export async function countSongsAvailable() {
 }
 
 export async function saveSongsOwnedDB() {
-  await db.close();
+  //await db.close();
 }
 export async function updateMasteryandPlayed(id, mastery, playedcount) {
   //await db.close();
@@ -117,10 +117,10 @@ export default async function updateSongsOwned(psarcResult) {
   const id = escape(psarcResult.id);
   const uniqkey = escape(psarcResult.uniquekey);
   const lct = escape(psarcResult.lastConversionTime);
-  sqlstr += `REPLACE INTO songs_owned VALUES ('${album}','${artist}',
+  sqlstr += `REPLACE INTO songs_owned (album, artist, song, arrangement, json, psarc, dlc, sku, difficulty, dlckey, songkey, id,uniqkey, lastConversionTime) VALUES ('${album}','${artist}',
       '${song}','${arrangement}','${json}','${psarc}',
       '${dlc}','${sku}',${difficulty},'${dlckey}',
-      '${songkey}','${id}', '${uniqkey}', 0, 0, '${lct}');`
+      '${songkey}','${id}', '${uniqkey}', '${lct}');`
   //});
   //console.log(sqlstr);
   await db.run(sqlstr); // Run the query without returning anything
@@ -181,7 +181,7 @@ export async function getArrangmentsMastered() {
     console.log(dbfilename);
     db = await window.sqlite.open(dbfilename);
   }
-  const sql = `select count(mastery) as count from songs_owned where mastery >= 0.95`;
+  const sql = `select count(mastery) as count from songs_owned where mastery > 0.95`;
   const output = await db.get(sql);
   return output;
 }
@@ -211,12 +211,18 @@ export async function initSetlistDB() {
   await db.run("CREATE TABLE IF NOT EXISTS setlist_meta (key char primary key, name char);");
   await db.run("REPLACE INTO setlist_meta VALUES('setlist_practice','Practice List');")
   await initSetlistPlaylistDB("setlist_practice");
-  await db.run("REPLACE INTO setlist_meta VALUES('setlist_favorites','Favorites');")
+  await db.run("REPLACE INTO setlist_meta VALUES('setlist_favorites','RS Favorites');")
   await initSetlistPlaylistDB("setlist_favorites");
 }
-export async function getAllSetlist() {
+export async function getAllSetlist(filter = false) {
   await initSetlistDB();
-  const sql = "SELECT * FROM setlist_meta order by name collate nocase;"
+  let sql = ''
+  if (filter) {
+    sql = "SELECT * FROM setlist_meta where key not like '%setlist_favorites%' order by name collate nocase";
+  }
+  else {
+    sql = "SELECT * FROM setlist_meta  order by name collate nocase;"
+  }
   const all = await db.all(sql);
   return all;
 }
@@ -291,7 +297,21 @@ export async function addToFavorites(songkey) {
   const op = await db.run(sql)
   return op.changes;
 }
+
+export async function getRandomSongOwned() {
+  await initSongsOwnedDB();
+  const sql = "select * from songs_owned where mastery < 0.95 order by random() limit 1;"
+  const op = await db.get(sql);
+  return op;
+}
+export async function getRandomSongAvailable() {
+  await initSongsAvailableDB();
+  const sql = "select * from songs_available where name not like '%Song%20Pack%' and owned='false' order by random() limit 1;"
+  const op = await db.get(sql);
+  return op;
+}
 window.remote.app.on('window-all-closed', async () => {
   await saveSongsOwnedDB();
   console.log("Saved to db..");
 })
+

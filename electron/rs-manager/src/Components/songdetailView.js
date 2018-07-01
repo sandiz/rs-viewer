@@ -80,7 +80,7 @@ export default class SongDetailView extends React.Component {
   }
   generateSetlistOptions = async () => {
     const items = []
-    const output = await getAllSetlist();
+    const output = await getAllSetlist(true);
     for (let i = 0; i < output.length; i += 1) {
       items.push(<option key={output[i].key} value={output[i].key}>{output[i].name}</option>);
       //here I will be creating my options dynamically based on
@@ -110,10 +110,16 @@ export default class SongDetailView extends React.Component {
           <br />
           <div style={{ textAlign: 'center' }}>
             <h4 style={{ fontSize: 150 + "%", fontWeight: 'bold' }}>{unescape(this.props.song)}
-              <span style={{ fontSize: 70 + '%', fontWeight: 'normal' }}> by </span>
-              {unescape(this.props.artist)}
-              <span style={{ fontSize: 70 + '%', fontWeight: 'normal' }}> from </span>
-              {unescape(this.props.album)}</h4>
+              {
+                this.props.isSongpack ? "" :
+                  (<span>
+                    <span style={{ fontSize: 70 + '%', fontWeight: 'normal' }}> by </span>
+                    {unescape(this.props.artist)}
+                    <span style={{ fontSize: 70 + '%', fontWeight: 'normal' }}> from </span>
+                    {unescape(this.props.album)}
+                  </span>)
+              }
+            </h4>
           </div>
           <div>
             <div id="div_playthrough" className={ptdivstyle} style={{ width: 100 + '%', margin: '0 auto' }}>
@@ -147,24 +153,40 @@ export default class SongDetailView extends React.Component {
               className={ptstyle}>
               Playthrough Video
             </a>
-            <a
-              onClick={this.chooseMV}
-              className={mvstyle}>
-              Music Video
-            </a>
-            <a
-              onClick={async () => { await this.props.removeFromSetlist(); this.props.close(); }}
-              className={setlistyle}>
-              Remove from Setlist
-            </a>
-            <a
-              onClick={async () => { this.addToSetlist(); this.props.close(); }}
-              className={songliststyle}>
-              Add to Setlist
-            </a>
-            <select onChange={this.saveSetlist} style={{ margin: 12 + 'px' }}>
-              {this.state.setlists}
-            </select>
+            {
+              this.props.isSongpack ?
+                <a
+                  onClick={() => {
+                    console.log(this.props.dlcappid);
+                    window.shell.openExternal("steam://openurl/https://store.steampowered.com/app/" + this.props.dlcappid);
+                  }}
+                  className={mvstyle}>
+                  Buy From Steam
+                  </a>
+                :
+                <span>
+                  <a
+                    onClick={this.chooseMV}
+                    className={mvstyle}>
+                    Music Video
+                  </a>
+                  <a
+                    onClick={async () => {
+                      await this.props.removeFromSetlist();
+                      this.props.close();
+                    }}
+                    className={setlistyle}>
+                    Remove from Setlist
+                  </a>
+                  <a
+                    onClick={async () => { this.addToSetlist(); this.props.close(); }}
+                    className={songliststyle}>
+                    Add to Setlist
+                  </a>
+                  <select onChange={this.saveSetlist} style={{ margin: 12 + 'px' }}>
+                    {this.state.setlists}
+                  </select></span>
+            }
           </div>
         </div>
       </div >
@@ -180,6 +202,8 @@ SongDetailView.propTypes = {
   close: PropTypes.func,
   isSongview: PropTypes.bool,
   isSetlist: PropTypes.bool,
+  isSongpack: PropTypes.bool,
+  dlcappid: PropTypes.string,
   removeFromSetlist: PropTypes.func,
 }
 SongDetailView.defaultProps = {
@@ -189,6 +213,8 @@ SongDetailView.defaultProps = {
   album: '',
   isSetlist: true,
   isSongview: false,
+  isSongpack: false,
+  dlcappid: '',
   close: () => { },
   removeFromSetlist: () => { },
 }

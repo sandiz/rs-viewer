@@ -45,7 +45,7 @@ export default class SetlistView extends React.Component {
       showSong: '',
       showArtist: '',
     };
-    this.search = "";
+    this.search = null;
     this.columns = [
       {
         dataField: "id",
@@ -211,7 +211,7 @@ export default class SetlistView extends React.Component {
       sizePerPage,
       sortField === null ? "song" : sortField,
       sortOrder === null ? "asc" : sortOrder,
-      this.search.value,
+      this.search ? this.search.value : "",
     )
     if (output.length > 0) {
       this.props.updateHeader(

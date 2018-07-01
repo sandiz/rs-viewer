@@ -171,9 +171,6 @@ export default class PSARCView extends React.Component {
         if (file.endsWith("_m.psarc")) {
           results.push([dir + file, statres]);
         }
-        else if (file.endsWith(".psarc") && file.search("/dlc/") === -1) {
-          results.push([dir + file, statres]);
-        }
       }
     }
     return results;
@@ -187,7 +184,6 @@ export default class PSARCView extends React.Component {
     this.processedFiles = [];
     // eslint-disable-next-line
     for (const prObj of results) {
-      console.log(prObj);
       // eslint-disable-next-line
       const currentResults = await readPSARC(prObj[0], prObj[1], (500 + (index * 100)))
       if (currentResults === null || currentResults === 'undefined' || currentResults.length === 0) {

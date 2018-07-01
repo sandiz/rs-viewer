@@ -521,6 +521,11 @@ tbody tr:nth-child(odd) {
     padding-left: 10px; 
     padding-right: 10px; 
  }
+ .dashboard-header {
+    margin: 24px auto !important;
+    height: 140px !important;
+    max-width: 319px !important;
+ }
 .dashboard-top {
   height: 240px;
   background-color: #fff;
@@ -545,7 +550,7 @@ tbody tr:nth-child(odd) {
 }
 hr {
   border-bottom: .5px solid black !important;
-  margin-top: 10px !important;
+  margin-top: 6px !important;
 }
 .col-md-3 {
     flex: 0 0 31% !important;

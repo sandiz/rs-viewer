@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 import StatsTableView from './statsTableView';
 import getProfileConfig, { updateProfileConfig } from '../configService';
 import readProfile from '../steamprofileService';
-import { getSongID, countSongsOwned, getArrangmentsMastered, getLeadStats, getRhythmStats, getBassStats } from '../sqliteService';
+import { getSongID, countSongsOwned, getArrangmentsMastered, getLeadStats, getRhythmStats, getBassStats, getRandomSongOwned, getRandomSongAvailable } from '../sqliteService';
+import { replaceRocksmithTerms } from './songavailableView';
+import SongDetailView from './songdetailView';
 
 const { remote } = window.require('electron')
 export default class DashboardView extends React.Component {
@@ -11,6 +13,13 @@ export default class DashboardView extends React.Component {
     super(props);
     this.tabname = 'tab-dashboard';
     this.state = {
+      randompackappid: '',
+      showsongpackpreview: false,
+      showsongpreview: false,
+      randomartist: '',
+      randomsong: '',
+      randomalbum: '',
+      randompack: '',
       totalPlayingTime: 0,
       maxConsecutiveDays: 0,
       longestStreak: 0,
@@ -50,6 +59,7 @@ export default class DashboardView extends React.Component {
   }
   componentWillMount = () => {
     this.fetchStats();
+    this.fetchRandomStats();
   }
   getStatsWidth = (input, min, max) => {
     return ((input - min) * 100) / (max - min);
@@ -159,6 +169,23 @@ export default class DashboardView extends React.Component {
       this.props.updateHeader(this.tabname, "Rocksmith 2014 Dashboard");
     }
   }
+  fetchRandomStats = async (changesong = true, changepack = true) => {
+    if (changesong) {
+      const rsong = await getRandomSongOwned();
+      this.setState({
+        randomalbum: unescape(rsong.album),
+        randomsong: unescape(rsong.song),
+        randomartist: unescape(rsong.artist),
+      })
+    }
+    if (changepack) {
+      const rpack = await getRandomSongAvailable();
+      this.setState({
+        randompackappid: unescape(rpack.appid),
+        randompack: replaceRocksmithTerms(unescape(rpack.name)),
+      });
+    }
+  }
 
   render = () => {
     if (this.props.currentTab === null) {
@@ -174,6 +201,50 @@ export default class DashboardView extends React.Component {
             </a>
           </div>
           <br />
+          <div className="row justify-content-md-center" style={{ marginTop: -30 + 'px' }}>
+            <div className="col col-md-3 ta-center dashboard-top dashboard-header">
+              <div>
+                <a onClick={() => this.fetchRandomStats(false, true)}>Random Steam DLC</a>
+                <hr />
+              </div>
+              <div style={{ marginTop: -6 + 'px' }}>
+                <span style={{ fontSize: 26 + 'px' }}>
+                  <a
+                    onClick={() => { this.setState({ showsongpackpreview: true }) }}>
+                    {this.state.randompack}
+                  </a>
+                </span>
+                <br />
+              </div>
+            </div>
+            <div className="col col-md-3 ta-center dashboard-top dashboard-header">
+              <div>
+                <a onClick={() => this.fetchRandomStats(true, false)}> Random Learn A Song </a>
+                <hr />
+              </div>
+              <div style={{ marginTop: -10 + 'px' }}>
+                <span
+                  style={{
+                    width: 100 + '%',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    fontSize: 30 + 'px',
+                    display: 'inline-block',
+                  }}><a
+                    onClick={() => { this.setState({ showsongpreview: true }) }}>
+                    {this.state.randomsong}
+                  </a>
+                </span>
+                <br />
+                <span><a
+                  onClick={() => { this.setState({ showsongpreview: true }) }}>
+                  {this.state.randomartist}
+                </a>
+                </span>
+              </div>
+            </div>
+          </div>
           <div className="row justify-content-md-center">
             <div className="col col-lg-5 ta-center dashboard-top">
               <div>
@@ -297,6 +368,28 @@ export default class DashboardView extends React.Component {
                 unplayedwidth={this.state.buw}
               />
             </div>
+          </div>
+          <div>
+            <SongDetailView
+              song={this.state.randomsong}
+              artist={this.state.randomartist}
+              album={this.state.randomalbum}
+              showDetail={this.state.showsongpreview}
+              close={() => this.setState({ showsongpreview: false })}
+              isSongview
+              isSetlist={false}
+            />
+            <SongDetailView
+              song={this.state.randompack}
+              artist="Rocksmith"
+              album="Steam"
+              showDetail={this.state.showsongpackpreview}
+              close={() => this.setState({ showsongpackpreview: false })}
+              isSongview
+              isSongpack
+              dlcappid={this.state.randompackappid}
+              isSetlist={false}
+            />
           </div>
         </div>);
     }
