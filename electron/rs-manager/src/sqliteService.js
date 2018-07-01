@@ -203,7 +203,7 @@ export async function getBassStats() {
 export async function initSetlistPlaylistDB(dbname) {
   const dbfilename = window.dirname + "/../rsdb.sqlite";
   db = await window.sqlite.open(dbfilename);
-  await db.run(`CREATE TABLE IF NOT EXISTS ${dbname} ( uniqkey char, FOREIGN KEY(uniqkey) REFERENCES songs_owned(uniqkey));`);
+  await db.run(`CREATE TABLE IF NOT EXISTS ${dbname} ( uniqkey char primary key, FOREIGN KEY(uniqkey) REFERENCES songs_owned(uniqkey));`);
 }
 export async function initSetlistDB() {
   const dbfilename = window.dirname + "/../rsdb.sqlite";
@@ -286,7 +286,11 @@ export async function saveSongToSetlist(setlist, song, artist) {
     await db.run(sql)
   }
 }
-
+export async function addToFavorites(songkey) {
+  const sql = `replace into setlist_favorites (uniqkey) select uniqkey from songs_owned where songkey like '%${songkey}%'`
+  const op = await db.run(sql)
+  return op.changes;
+}
 window.remote.app.on('window-all-closed', async () => {
   await saveSongsOwnedDB();
   console.log("Saved to db..");

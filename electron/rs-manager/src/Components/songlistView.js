@@ -4,7 +4,7 @@ import paginationFactory from 'react-bootstrap-table2-paginator';
 import filterFactory from 'react-bootstrap-table2-filter';
 import PropTypes from 'prop-types';
 import readProfile from '../steamprofileService';
-import { getSongsOwned, countSongsOwned, updateMasteryandPlayed, initSongsOwnedDB } from '../sqliteService';
+import { initSetlistPlaylistDB, getSongsOwned, countSongsOwned, updateMasteryandPlayed, initSongsOwnedDB, addToFavorites } from '../sqliteService';
 import getProfileConfig, { updateProfileConfig } from '../configService';
 import SongDetailView from './songdetailView';
 
@@ -301,6 +301,55 @@ export default class SonglistView extends React.Component {
       this.setState({ songs: output, page: 1, totalSize: output[0].acount });
     }
   }
+  updateFavs = async () => {
+    const prfldb = await getProfileConfig();
+    let prfldbs = []
+    if (prfldb !== "") { //check for file sync also
+      prfldbs.push(prfldb);
+    }
+    else {
+      prfldbs = remote.dialog.showOpenDialog({
+        properties: ["openFile"],
+      });
+    }
+    if (prfldbs.length > 0) {
+      this.props.updateHeader(
+        this.tabname,
+        this.childtabname,
+        `Decrypting ${path.basename(prfldbs[0])}`,
+      );
+      const steamProfile = await readProfile(prfldbs[0]);
+      const stats = steamProfile.FavoritesListRoot.FavoritesList;
+      await updateProfileConfig(prfldbs[0]);
+      this.props.handleChange();
+      this.props.updateHeader(
+        this.tabname,
+        this.childtabname,
+        `Favorites Found: ${stats.length}`,
+      );
+      await initSetlistPlaylistDB('setlist_favorites');
+      let updatedRows = 0;
+      for (let i = 0; i < stats.length; i += 1) {
+        const stat = stats[i];
+        this.props.updateHeader(
+          this.tabname,
+          this.childtabname,
+          `Updating Favorite for SongKey:  ${stat} (${i}/${stats.length})`,
+        );
+        // eslint-disable-next-line
+        const rows = await addToFavorites(stat);
+        if (rows === 0) {
+          console.log("Missing ID: " + stat);
+        }
+        updatedRows += rows;
+      }
+      this.props.updateHeader(
+        this.tabname,
+        this.childtabname,
+        "Favorites Found: " + updatedRows,
+      );
+    }
+  }
 
   handleTableChange = async (type, {
     page,
@@ -359,9 +408,13 @@ export default class SonglistView extends React.Component {
             <a
               onClick={this.openDirDialog}
               className={choosepsarchstyle}>
-              Update Mastery from Steam Profile
+              Update Mastery from RS Profile
             </a>
-          </div>
+            <a
+              onClick={this.updateFavs}
+              className={choosepsarchstyle}>
+              Update Favorites from RS Profile
+            </a></div>
           <div>
             <RemoteAll
               keyField="id"

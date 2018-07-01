@@ -2,7 +2,7 @@ import React from 'react'
 import BootstrapTable from 'react-bootstrap-table-next'
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
-
+import path from 'path';
 import PropTypes from 'prop-types';
 import readPSARC, { psarcToJSON, extractFile } from '../psarcService';
 import updateSongsOwned, { initSongsOwnedDB, saveSongsOwnedDB } from '../sqliteService';
@@ -146,7 +146,7 @@ export default class PSARCView extends React.Component {
     const dirs = remote.dialog.showOpenDialog({
       properties: ["openDirectory"],
     });
-    if (dirs.length <= 0) {
+    if (dirs === null || typeof dirs === 'undefined' || dirs.length <= 0) {
       return;
     }
     const results = this.walkSync(dirs[0] + "/", null);
@@ -171,6 +171,9 @@ export default class PSARCView extends React.Component {
         if (file.endsWith("_m.psarc")) {
           results.push([dir + file, statres]);
         }
+        else if (file.endsWith(".psarc") && file.search("/dlc/") === -1) {
+          results.push([dir + file, statres]);
+        }
       }
     }
     return results;
@@ -184,8 +187,13 @@ export default class PSARCView extends React.Component {
     this.processedFiles = [];
     // eslint-disable-next-line
     for (const prObj of results) {
+      console.log(prObj);
       // eslint-disable-next-line
       const currentResults = await readPSARC(prObj[0], prObj[1], (500 + (index * 100)))
+      if (currentResults === null || currentResults === 'undefined' || currentResults.length === 0) {
+        this.props.updateHeader(this.tabname, "Failed to read " + path.basename(prObj[0]));
+        continue;
+      }
       this.processedFiles = this.processedFiles.concat(currentResults);
       this.props.updateHeader(this.tabname, `Processesing PSARC:  ${currentResults[0].psarc} (${index}/${count})`);
       if (index >= count) {
