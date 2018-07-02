@@ -30,6 +30,9 @@ export default class SongDetailView extends React.Component {
     }
     return nextprops.showDetail;
   }
+  onKeyUp = (e) => {
+    console.log(e.KeyCode);
+  }
   getYoutubeResult = async (searchterm, divID) => {
     const url = 'https://www.googleapis.com/youtube/v3/search';
     const params = {
@@ -69,8 +72,10 @@ export default class SongDetailView extends React.Component {
     this.setState({ showPlaythrough: false, showMusicVideo: true });
   }
   handleHide = () => {
+    this.choosePlay();
     this.props.close();
   }
+
   addToSetlist = async (e) => {
     const { song, artist } = this.props;
     await saveSongToSetlist(this.state.currentSetlist, unescape(song), unescape(artist));
@@ -106,7 +111,7 @@ export default class SongDetailView extends React.Component {
     return (
       <div id="open-modal" className="modal-window" style={{ opacity: 1, pointerEvents: "auto" }}>
         <div id="modal-info" className={modalinfostyle}>
-          <a title="Close" className="modal-close" onClick={this.handleHide}>Close</a>
+          <a onKeyUp={this.onKeyUp} title="Close" className="modal-close" onClick={this.handleHide}>Close</a>
           <br />
           <div style={{ textAlign: 'center' }}>
             <h4 style={{ fontSize: 150 + "%", fontWeight: 'bold' }}>{unescape(this.props.song)}

@@ -406,15 +406,16 @@ export default class SonglistView extends React.Component {
           </div>
           <div className="centerButton list-unstyled">
             <a
+              onClick={this.updateFavs}
+              className={choosepsarchstyle}>
+              Update Favorites from RS Profile
+            </a>
+            <a
               onClick={this.openDirDialog}
               className={choosepsarchstyle}>
               Update Mastery from RS Profile
             </a>
-            <a
-              onClick={this.updateFavs}
-              className={choosepsarchstyle}>
-              Update Favorites from RS Profile
-            </a></div>
+          </div>
           <div>
             <RemoteAll
               keyField="id"

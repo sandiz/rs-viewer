@@ -531,22 +531,22 @@ tbody tr:nth-child(odd) {
   background-color: #fff;
   border:1px solid #bbb;
   color: #252525;
-  border-radius: 10px;
+  border-radius: 5px;
   padding: 10px;
   margin: auto;
   width: 100%;
-  filter: drop-shadow(0 0 0.15rem black);
+  /*filter: drop-shadow(0 0 0.05rem black);*/
 }
 .dashboard-middle {
   height: 272px;
   background-color: #fff;
   border:1px solid #bbb;
   color: #252525;
-  border-radius: 10px;
+  border-radius: 5px;
   padding: 10px;
-  margin: auto;
+  margin: 5px;
   width: 100%;
-  filter:drop-shadow(0 0 0.15rem black);
+  /*filter:drop-shadow(0 0 0.05rem black);*/
 }
 hr {
   border-bottom: .5px solid black !important;
