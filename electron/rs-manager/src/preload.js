@@ -8,6 +8,7 @@ window.dirname = __dirname;
 window.sqlite = require("sqlite");
 window.fetch = fetch;
 window.http = require("http");
+window.os = require("os");
 
 const rp = require('request-promise');
 

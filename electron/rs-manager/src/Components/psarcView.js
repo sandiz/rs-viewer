@@ -168,7 +168,13 @@ export default class PSARCView extends React.Component {
         //filelist = this.walkSync(dir + file + "/", filelist);
         results = this.walkSync(dir + file + "/", results);
       } else {
-        if (file.endsWith("_m.psarc")) {
+        if (window.os.platform() === 'darwin' && file.endsWith("_m.psarc")) {
+          results.push([dir + file, statres]);
+        }
+        else if (window.os.platform() === 'win32' && file.endsWith("_p.psarc")) {
+          results.push([dir + file, statres]);
+        }
+        else if (file.endsWith("songs.psarc")) {
           results.push([dir + file, statres]);
         }
       }
@@ -261,6 +267,11 @@ export default class PSARCView extends React.Component {
       return (
         <div>
           <div className="centerButton list-unstyled">
+            <a
+              onClick={this.openFileDialog}
+              className={choosepsarchstyle}>
+              Choose .psarc File
+            </a>
             <a
               onClick={this.openDirDialog}
               className={choosepsarchstyle}>

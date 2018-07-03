@@ -158,6 +158,7 @@ class App extends Component {
                 requiredTab="tab-setlist"
                 updateHeader={this.updateChildHeader}
                 resetHeader={this.resetHeader}
+                handleChange={this.updateProfile}
               />
             </div>
           </div>

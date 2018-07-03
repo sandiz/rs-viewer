@@ -91,6 +91,8 @@ export default class SonglistView extends React.Component {
       showSong: '',
       showArtist: '',
     };
+    this.lastsortfield = "song";
+    this.lastsortorder = "asc";
     this.search = "";
     this.columns = [
       {
@@ -241,7 +243,7 @@ export default class SonglistView extends React.Component {
       sortOrder: null,
     })
   }
-  openDirDialog = async () => {
+  updateMastery = async () => {
     const prfldb = await getProfileConfig();
     let prfldbs = []
     if (prfldb !== "") { //check for file sync also
@@ -294,8 +296,8 @@ export default class SonglistView extends React.Component {
       const output = await getSongsOwned(
         0,
         this.state.sizePerPage,
-        "mastery",
-        "desc",
+        this.lastsortfield,
+        this.lastsortorder,
         this.search.value,
       )
       this.setState({ songs: output, page: 1, totalSize: output[0].acount });
@@ -364,10 +366,12 @@ export default class SonglistView extends React.Component {
     const output = await getSongsOwned(
       start,
       sizePerPage,
-      sortField === null ? "song" : sortField,
-      sortOrder === null ? "asc" : sortOrder,
+      sortField === null ? this.lastsortfield : sortField,
+      sortOrder === null ? this.lastsortorder : sortOrder,
       this.search.value,
     )
+    if (sortField !== null) { this.lastsortfield = sortField; }
+    if (sortOrder !== null) { this.lastsortorder = sortOrder; }
     if (output.length > 0) {
       this.props.updateHeader(
         this.tabname,
@@ -391,7 +395,7 @@ export default class SonglistView extends React.Component {
     } else if (this.props.currentTab.id === this.tabname &&
       this.props.currentChildTab.id === this.childtabname) {
       const { songs, sizePerPage, page } = this.state;
-      const choosepsarchstyle = "extraPadding download " + (this.state.totalSize < 0 ? "isDisabled" : "");
+      const choosepsarchstyle = "extraPadding download " + (this.state.totalSize <= 0 ? "isDisabled" : "");
       return (
         <div>
           <div style={{ width: 100 + '%', margin: "auto", textAlign: "center" }}>
@@ -411,7 +415,7 @@ export default class SonglistView extends React.Component {
               Update Favorites from RS Profile
             </a>
             <a
-              onClick={this.openDirDialog}
+              onClick={this.updateMastery}
               className={choosepsarchstyle}>
               Update Mastery from RS Profile
             </a>

@@ -295,7 +295,7 @@ export default class SongAvailableView extends React.Component {
             </a>
             <a
               onClick={this.generateYouTube}
-              className={ownedstyle}>
+              className="extraPadding download isDisabled">
               Generate YouTube playlist
             </a>
           </div>

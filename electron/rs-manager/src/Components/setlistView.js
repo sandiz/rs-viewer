@@ -1,8 +1,14 @@
 import React from 'react'
 import PropTypes from 'prop-types';
-import { getSongsFromPlaylistDB, removeSongFromSetlist } from '../sqliteService';
 import { RemoteAll } from './songlistView';
 import SongDetailView from './songdetailView';
+import readProfile from '../steamprofileService';
+import { addToFavorites, initSetlistPlaylistDB, getSongsFromPlaylistDB, removeSongFromSetlist, updateMasteryandPlayed, initSongsOwnedDB } from '../sqliteService';
+import getProfileConfig, { updateProfileConfig } from '../configService';
+
+const path = require('path');
+
+const { remote } = window.require('electron')
 
 
 function unescapeFormatter(cell, row) {
@@ -171,6 +177,8 @@ export default class SetlistView extends React.Component {
       },
     };
     this.lastChildID = ""
+    this.lastsortfield = "mastery"
+    this.lastsortorder = "desc"
   }
 
   shouldComponentUpdate = async (nextprops, nextstate) => {
@@ -194,6 +202,67 @@ export default class SetlistView extends React.Component {
       sortOrder: null,
     })
   }
+  updateMastery = async () => {
+    const prfldb = await getProfileConfig();
+    let prfldbs = []
+    if (prfldb !== "") { //check for file sync also
+      prfldbs.push(prfldb);
+    }
+    else {
+      prfldbs = remote.dialog.showOpenDialog({
+        properties: ["openFile"],
+      });
+    }
+    if (prfldbs.length > 0) {
+      this.props.updateHeader(
+        this.tabname,
+        this.lastChildID,
+        `Decrypting ${path.basename(prfldbs[0])}`,
+      );
+      const steamProfile = await readProfile(prfldbs[0]);
+      const stats = steamProfile.Stats.Songs;
+      await updateProfileConfig(prfldbs[0]);
+      this.props.handleChange();
+      this.props.updateHeader(
+        this.tabname,
+        this.lastChildID,
+        `Song Stats Found: ${Object.keys(stats).length}`,
+      );
+      await initSongsOwnedDB();
+      const keys = Object.keys(stats);
+      let updatedRows = 0;
+      for (let i = 0; i < keys.length; i += 1) {
+        const stat = stats[keys[i]];
+        const mastery = stat.MasteryPeak;
+        const played = stat.PlayedCount;
+        this.props.updateHeader(
+          this.tabname,
+          this.lastChildID,
+          `Updating Stat for SongID:  ${keys[i]} (${i}/${keys.length})`,
+        );
+        // eslint-disable-next-line
+        const rows = await updateMasteryandPlayed(keys[i], mastery, played);
+        if (rows === 0) {
+          console.log("Missing ID: " + keys[i]);
+        }
+        updatedRows += rows;
+      }
+      this.props.updateHeader(
+        this.tabname,
+        this.lastChildID,
+        "Stats Found: " + updatedRows + ", Total Stats: " + keys.length,
+      );
+      const output = await getSongsFromPlaylistDB(
+        this.lastChildID,
+        0,
+        this.state.sizePerPage,
+        this.lastsortfield,
+        this.lastsortorder,
+        this.search.value,
+      )
+      this.setState({ songs: output, page: 1, totalSize: output[0].acount });
+    }
+  }
   handleTableChange = async (type, {
     page,
     sizePerPage,
@@ -209,10 +278,12 @@ export default class SetlistView extends React.Component {
       this.lastChildID,
       start,
       sizePerPage,
-      sortField === null ? "song" : sortField,
-      sortOrder === null ? "asc" : sortOrder,
+      sortField === null ? this.lastsortfield : sortField,
+      sortOrder === null ? this.lastsortorder : sortOrder,
       this.search ? this.search.value : "",
     )
+    if (sortField !== null) { this.lastsortfield = sortField; }
+    if (sortOrder !== null) { this.lastsortorder = sortOrder; }
     if (output.length > 0) {
       this.props.updateHeader(
         this.tabname,
@@ -228,6 +299,55 @@ export default class SetlistView extends React.Component {
         `Songs: 0, Arrangements: 0`,
       );
       this.setState({ songs: output, page, totalSize: 0 });
+    }
+  }
+  updateFavs = async () => {
+    const prfldb = await getProfileConfig();
+    let prfldbs = []
+    if (prfldb !== "") { //check for file sync also
+      prfldbs.push(prfldb);
+    }
+    else {
+      prfldbs = remote.dialog.showOpenDialog({
+        properties: ["openFile"],
+      });
+    }
+    if (prfldbs.length > 0) {
+      this.props.updateHeader(
+        this.tabname,
+        this.lastChildID,
+        `Decrypting ${path.basename(prfldbs[0])}`,
+      );
+      const steamProfile = await readProfile(prfldbs[0]);
+      const stats = steamProfile.FavoritesListRoot.FavoritesList;
+      await updateProfileConfig(prfldbs[0]);
+      this.props.handleChange();
+      this.props.updateHeader(
+        this.tabname,
+        this.lastChildID,
+        `Favorites Found: ${stats.length}`,
+      );
+      await initSetlistPlaylistDB('setlist_favorites');
+      let updatedRows = 0;
+      for (let i = 0; i < stats.length; i += 1) {
+        const stat = stats[i];
+        this.props.updateHeader(
+          this.tabname,
+          this.lastChildID,
+          `Updating Favorite for SongKey:  ${stat} (${i}/${stats.length})`,
+        );
+        // eslint-disable-next-line
+        const rows = await addToFavorites(stat);
+        if (rows === 0) {
+          console.log("Missing ID: " + stat);
+        }
+        updatedRows += rows;
+      }
+      this.props.updateHeader(
+        this.tabname,
+        this.lastChildID,
+        "Favorites Found: " + updatedRows,
+      );
     }
   }
 
@@ -253,14 +373,16 @@ export default class SetlistView extends React.Component {
       return null;
     } else if (this.props.currentTab.id === this.tabname) {
       const { songs, sizePerPage, page } = this.state;
+      const choosepsarchstyle = "extraPadding download " + (this.state.totalSize <= 0 ? "isDisabled" : "");
       return (
         <div>
-          <div style={{
-            width: 100 + '%',
-            margin: "auto",
-            textAlign: "center",
-            height: 70 + 'px',
-          }}>
+          <div
+            className="centerButton list-unstyled"
+            style={{
+              width: 100 + '%',
+              margin: "auto",
+              textAlign: "center",
+            }}>
             <input
               ref={(node) => { this.search = node }}
               style={{ width: 50 + '%', border: "1px solid black", padding: 5 + "px" }}
@@ -269,6 +391,22 @@ export default class SetlistView extends React.Component {
               placeholder="Search..."
               type="search"
             />
+            <br /><br />
+            {
+              this.lastChildID === "setlist_favorites" ?
+                <a
+                  onClick={this.updateFavs}
+                  className={choosepsarchstyle}>
+                  Update Favorites from RS Profile
+            </a>
+                :
+                ""
+            }
+            <a
+              onClick={this.updateMastery}
+              className={choosepsarchstyle}>
+              Update Mastery from RS Profile
+            </a>
             <br />
           </div>
           <div>
@@ -309,6 +447,7 @@ SetlistView.propTypes = {
   updateHeader: PropTypes.func,
   // eslint-disable-next-line
   resetHeader: PropTypes.func,
+  handleChange: PropTypes.func,
 }
 SetlistView.defaultProps = {
   currentTab: null,
@@ -316,4 +455,5 @@ SetlistView.defaultProps = {
   requiredTab: '',
   updateHeader: () => { },
   resetHeader: () => { },
+  handleChange: () => { },
 }
