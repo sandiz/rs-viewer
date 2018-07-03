@@ -3,9 +3,11 @@ import PropTypes from 'prop-types';
 import StatsTableView from './statsTableView';
 import getProfileConfig, { updateProfileConfig } from '../configService';
 import readProfile from '../steamprofileService';
-import { getSongID, countSongsOwned, getArrangmentsMastered, getLeadStats, getRhythmStats, getBassStats, getRandomSongOwned, getRandomSongAvailable } from '../sqliteService';
+import { updateMasteryandPlayed, initSongsOwnedDB, getSongID, countSongsOwned, getArrangmentsMastered, getLeadStats, getRhythmStats, getBassStats, getRandomSongOwned, getRandomSongAvailable } from '../sqliteService';
 import { replaceRocksmithTerms } from './songavailableView';
 import SongDetailView from './songdetailView';
+
+const path = require('path');
 
 const { remote } = window.require('electron')
 export default class DashboardView extends React.Component {
@@ -13,10 +15,14 @@ export default class DashboardView extends React.Component {
     super(props);
     this.tabname = 'tab-dashboard';
     this.state = {
+      showweekly: false,
+      weeklysongspotlight: { title: '', url: '' },
       randompackappid: '',
       showsongpackpreview: false,
       showsongpreview: false,
       randomartist: '',
+      randomarr: '',
+      randommastery: 0,
       randomsong: '',
       randomalbum: '',
       randompack: '',
@@ -60,6 +66,7 @@ export default class DashboardView extends React.Component {
   componentWillMount = () => {
     this.fetchStats();
     this.fetchRandomStats();
+    this.fetchWeeklySpotlight();
   }
   getStatsWidth = (input, min, max) => {
     return ((input - min) * 100) / (max - min);
@@ -172,10 +179,14 @@ export default class DashboardView extends React.Component {
   fetchRandomStats = async (changesong = true, changepack = true) => {
     if (changesong) {
       const rsong = await getRandomSongOwned();
+      let mastery = rsong.mastery * 100;
+      if (Math.round(mastery) !== mastery) { mastery = mastery.toFixed(2); }
       this.setState({
         randomalbum: unescape(rsong.album),
         randomsong: unescape(rsong.song),
         randomartist: unescape(rsong.artist),
+        randomarr: unescape(rsong.arrangement),
+        randommastery: mastery,
       })
     }
     if (changepack) {
@@ -186,7 +197,74 @@ export default class DashboardView extends React.Component {
       });
     }
   }
-
+  fetchWeeklySpotlight = async () => {
+    const c = await window.fetch("https://www.reddit.com/r/rocksmith.json");
+    const d = await c.json();
+    const posts = d.data.children;
+    const weekly = { title: '', url: '' };
+    for (let i = 0; i < posts.length; i += 1) {
+      const post = posts[i].data;
+      if (post.stickied && post.title.includes("Weekly Song Spotlight")) {
+        //eslint-disable-next-line
+        weekly.title = post.title.split(":")[1];
+        weekly.url = post.url;
+      }
+    }
+    console.log(weekly);
+    this.setState({ weeklysongspotlight: weekly });
+  }
+  updateMastery = async () => {
+    const prfldb = await getProfileConfig();
+    let prfldbs = []
+    if (prfldb !== "") { //check for file sync also
+      prfldbs.push(prfldb);
+    }
+    else {
+      prfldbs = remote.dialog.showOpenDialog({
+        properties: ["openFile"],
+      });
+    }
+    if (prfldbs.length > 0) {
+      this.props.updateHeader(
+        this.tabname,
+        `Decrypting ${path.basename(prfldbs[0])}`,
+      );
+      const steamProfile = await readProfile(prfldbs[0]);
+      const stats = steamProfile.Stats.Songs;
+      await updateProfileConfig(prfldbs[0]);
+      this.props.handleChange();
+      this.props.updateHeader(
+        this.tabname,
+        `Song Stats Found: ${Object.keys(stats).length}`,
+      );
+      await initSongsOwnedDB();
+      const keys = Object.keys(stats);
+      let updatedRows = 0;
+      for (let i = 0; i < keys.length; i += 1) {
+        const stat = stats[keys[i]];
+        const mastery = stat.MasteryPeak;
+        const played = stat.PlayedCount;
+        this.props.updateHeader(
+          this.tabname,
+          `Updating Stat for SongID:  ${keys[i]} (${i}/${keys.length})`,
+        );
+        // eslint-disable-next-line
+        const rows = await updateMasteryandPlayed(keys[i], mastery, played);
+        if (rows === 0) {
+          console.log("Missing ID: " + keys[i]);
+        }
+        updatedRows += rows;
+      }
+      this.props.updateHeader(
+        this.tabname,
+        "Stats Found: " + updatedRows + ", Total Stats: " + keys.length,
+      );
+    }
+  }
+  refreshStats = async () => {
+    await this.updateMastery();
+    await this.fetchStats();
+  }
   render = () => {
     if (this.props.currentTab === null) {
       return null;
@@ -195,7 +273,7 @@ export default class DashboardView extends React.Component {
         <div className="container-fluid">
           <div className="centerButton list-unstyled">
             <a
-              onClick={this.fetchStats}
+              onClick={this.refreshStats}
               className="extraPadding download">
               Refresh Stats from Profile
             </a>
@@ -204,7 +282,7 @@ export default class DashboardView extends React.Component {
           <div className="row justify-content-md-center" style={{ marginTop: -30 + 'px' }}>
             <div className="col col-md-3 ta-center dashboard-top dashboard-header">
               <div>
-                <a onClick={() => this.fetchRandomStats(false, true)}>Random Steam DLC</a>
+                <a onClick={() => this.fetchRandomStats(false, true)}>Random Purchasable DLC</a>
                 <hr />
               </div>
               <div style={{ marginTop: -6 + 'px' }}>
@@ -219,7 +297,27 @@ export default class DashboardView extends React.Component {
             </div>
             <div className="col col-md-3 ta-center dashboard-top dashboard-header">
               <div>
-                <a onClick={() => this.fetchRandomStats(true, false)}> Random Learn A Song </a>
+                <a
+                  onClick={
+                    () => { window.shell.openExternal(this.state.weeklysongspotlight.url) }}>
+                  Weekly Song Spotlight</a>
+                <hr />
+              </div>
+              <div style={{ marginTop: -6 + 'px' }}>
+                <span style={{ fontSize: 26 + 'px' }}>
+                  <a
+                    onClick={() => {
+                      this.setState({ showweekly: true, showsongpackpreview: true })
+                    }}>
+                    {this.state.weeklysongspotlight.title}
+                  </a>
+                </span>
+                <br />
+              </div>
+            </div>
+            <div className="col col-md-3 ta-center dashboard-top dashboard-header">
+              <div>
+                <a onClick={() => this.fetchRandomStats(true, false)}> Random Song</a>
                 <hr />
               </div>
               <div style={{ marginTop: -10 + 'px' }}>
@@ -239,7 +337,7 @@ export default class DashboardView extends React.Component {
                 <br />
                 <span><a
                   onClick={() => { this.setState({ showsongpreview: true }) }}>
-                  {this.state.randomartist}
+                  {this.state.randomartist} | {this.state.randomarr} | {this.state.randommastery} %
                 </a>
                 </span>
               </div>
@@ -380,15 +478,17 @@ export default class DashboardView extends React.Component {
               isSetlist={false}
             />
             <SongDetailView
-              song={this.state.randompack}
+              song={this.state.showweekly ?
+                this.state.weeklysongspotlight.title : this.state.randompack}
               artist="Rocksmith"
               album="Steam"
               showDetail={this.state.showsongpackpreview}
-              close={() => this.setState({ showsongpackpreview: false })}
+              close={() => this.setState({ showsongpackpreview: false, showweekly: false })}
               isSongview
               isSongpack
               dlcappid={this.state.randompackappid}
               isSetlist={false}
+              isWeekly={this.state.showweekly}
             />
           </div>
         </div>);

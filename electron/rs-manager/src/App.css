@@ -525,6 +525,8 @@ tbody tr:nth-child(odd) {
     margin: 24px auto !important;
     height: 140px !important;
     max-width: 319px !important;
+    margin-left: 20px !important;
+    margin-right: 20px !important;
  }
 .dashboard-top {
   height: 240px;
@@ -535,7 +537,9 @@ tbody tr:nth-child(odd) {
   padding: 10px;
   margin: auto;
   width: 100%;
-  /*filter: drop-shadow(0 0 0.05rem black);*/
+  margin-left: 30px;
+  margin-right: 30px;
+  filter: drop-shadow(0 0 0.10rem black);
 }
 .dashboard-middle {
   height: 272px;
@@ -546,7 +550,9 @@ tbody tr:nth-child(odd) {
   padding: 10px;
   margin: 5px;
   width: 100%;
-  /*filter:drop-shadow(0 0 0.05rem black);*/
+  margin-left:20px;
+  margin-right: 20px;
+  filter:drop-shadow(0 0 0.10rem black);
 }
 hr {
   border-bottom: .5px solid black !important;

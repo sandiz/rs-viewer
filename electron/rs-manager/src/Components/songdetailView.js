@@ -164,38 +164,40 @@ export default class SongDetailView extends React.Component {
               Playthrough Video
             </a>
             {
-              this.props.isSongpack ?
-                <a
-                  onClick={() => {
-                    console.log(this.props.dlcappid);
-                    window.shell.openExternal("steam://openurl/https://store.steampowered.com/app/" + this.props.dlcappid);
-                  }}
-                  className={mvstyle}>
-                  Buy From Steam
-                  </a>
-                :
-                <span>
+              //eslint-disable-next-line
+              this.props.isWeekly ? "" :
+                this.props.isSongpack ?
                   <a
-                    onClick={this.chooseMV}
-                    className={mvstyle}>
-                    Music Video
-                  </a>
-                  <a
-                    onClick={async () => {
-                      await this.props.removeFromSetlist();
-                      this.props.close();
+                    onClick={() => {
+                      console.log(this.props.dlcappid);
+                      window.shell.openExternal("steam://openurl/https://store.steampowered.com/app/" + this.props.dlcappid);
                     }}
-                    className={setlistyle}>
-                    Remove from Setlist
+                    className={mvstyle}>
+                    Buy From Steam
                   </a>
-                  <a
-                    onClick={async () => { this.addToSetlist(); this.props.close(); }}
-                    className={songliststyle}>
-                    Add to Setlist
+                  :
+                  <span>
+                    <a
+                      onClick={this.chooseMV}
+                      className={mvstyle}>
+                      Music Video
                   </a>
-                  <select onChange={this.saveSetlist} style={{ margin: 12 + 'px' }}>
-                    {this.state.setlists}
-                  </select></span>
+                    <a
+                      onClick={async () => {
+                        await this.props.removeFromSetlist();
+                        this.props.close();
+                      }}
+                      className={setlistyle}>
+                      Remove from Setlist
+                  </a>
+                    <a
+                      onClick={async () => { this.addToSetlist(); this.props.close(); }}
+                      className={songliststyle}>
+                      Add to Setlist
+                  </a>
+                    <select onChange={this.saveSetlist} style={{ margin: 12 + 'px' }}>
+                      {this.state.setlists}
+                    </select></span>
             }
           </div>
         </div>
@@ -213,6 +215,7 @@ SongDetailView.propTypes = {
   isSongview: PropTypes.bool,
   isSetlist: PropTypes.bool,
   isSongpack: PropTypes.bool,
+  isWeekly: PropTypes.bool,
   dlcappid: PropTypes.string,
   removeFromSetlist: PropTypes.func,
 }
@@ -224,6 +227,7 @@ SongDetailView.defaultProps = {
   isSetlist: true,
   isSongview: false,
   isSongpack: false,
+  isWeekly: false,
   dlcappid: '',
   close: () => { },
   removeFromSetlist: () => { },
