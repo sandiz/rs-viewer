@@ -210,7 +210,6 @@ export default class DashboardView extends React.Component {
         weekly.url = post.url;
       }
     }
-    console.log(weekly);
     this.setState({ weeklysongspotlight: weekly });
   }
   updateMastery = async () => {

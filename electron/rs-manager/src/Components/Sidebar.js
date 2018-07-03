@@ -32,6 +32,11 @@ const TabsData = [
     name: '.psarc Explorer',
     child: [],
   },
+  {
+    id: 'tab-settings',
+    name: 'Settings',
+    child: [],
+  },
 ]
 export default class Sidebar extends React.Component {
   constructor(props) {
@@ -126,7 +131,7 @@ export default class Sidebar extends React.Component {
           <div style={{ borderBottom: '1px solid #47748b' }}>
             <p style={{ margin: 0 + 'em' }}>
               Profile: {this.props.currentProfile}<br />
-              Steam: {this.props.steamConnected ? 'Connected' : 'Disconnected'} <br />
+              Steam: {this.props.steamConnected} <br />
               YouTube: {this.props.ytConnected ? 'Connected' : 'Disconnected'}
             </p>
           </div>
@@ -146,7 +151,7 @@ Sidebar.propTypes = {
   handleChange: PropTypes.func.isRequired,
   showSidebar: PropTypes.bool.isRequired,
   currentProfile: PropTypes.string,
-  steamConnected: PropTypes.bool,
+  steamConnected: PropTypes.string,
   ytConnected: PropTypes.bool,
 }
 Sidebar.defaultProps = {

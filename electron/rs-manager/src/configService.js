@@ -15,12 +15,13 @@ export async function getConfig(type) {
   try {
     const data = await readFile(window.dirname + "/../config.json");
     JsonObj = JSON.parse(data);
-    return JsonObj[type];
+    if (type in JsonObj) { return JsonObj[type]; }
+    return '';
   }
   catch (E) {
     console.log(E);
   }
-  return null;
+  return '';
 }
 export async function updateConfig(type, value) {
   try {
@@ -40,5 +41,12 @@ export async function updateProfileConfig(value) {
 }
 export default async function getProfileConfig() {
   const d = await getConfig("prfldb");
+  return d;
+}
+export async function updateSteamLoginSecureCookie(value) {
+  await updateConfig("steamLoginSecure", value);
+}
+export async function getSteamLoginSecureCookie() {
+  const d = await getConfig("steamLoginSecure");
   return d;
 }

@@ -564,3 +564,13 @@ hr {
 .dblock {
   display:block;
 }
+.settings {
+  height: 100%;
+  background-color: #fff;
+  border:1px solid #bbb;
+  color: #252525;
+  border-radius: 5px;
+  padding: 10px;
+  margin: auto;
+  width: 100%;
+}

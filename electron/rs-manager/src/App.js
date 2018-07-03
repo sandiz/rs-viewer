@@ -4,9 +4,10 @@ import Sidebar from './Components/Sidebar'
 import PSARCView from './Components/psarcView'
 import SonglistView from './Components/songlistView'
 import DashboardView from './Components/dashboardView'
-import getProfileConfig from './configService';
+import getProfileConfig, { getSteamLoginSecureCookie } from './configService';
 import SongAvailableView from './Components/songavailableView';
 import SetlistView from './Components/setlistView';
+import SettingsView from './Components/settingsView';
 import './App.css'
 
 class App extends Component {
@@ -18,6 +19,7 @@ class App extends Component {
       showSidebar: true,
       appTitle: '',
       currentProfile: '',
+      currentCookie: '',
     };
     //this.handleChange = this.handleChange.bind(this);
   }
@@ -26,7 +28,8 @@ class App extends Component {
   }
   updateProfile = async () => {
     const prfldb = await getProfileConfig();
-    this.setState({ currentProfile: prfldb });
+    const steamcookie = await getSteamLoginSecureCookie();
+    this.setState({ currentProfile: prfldb, currentCookie: steamcookie });
   }
   handleChange = async (tab, child) => {
     const text = (tab == null) ? "" : tab.name +
@@ -68,6 +71,7 @@ class App extends Component {
     let profile = len > 0 ?
       path.basename(this.state.currentProfile).slice(0, 6) + "..." + this.state.currentProfile.slice(len - 6, len) : "-";
     profile = profile.toLowerCase();
+    const cookie = this.state.currentCookie.length > 0 ? this.state.currentCookie.slice(0, 6) + "..." : "-";
     return (
       <div className="App">
         <div className="wrapper">
@@ -75,7 +79,7 @@ class App extends Component {
             handleChange={this.handleChange}
             showSidebar={this.state.showSidebar}
             currentProfile={profile}
-            steamConnected={false}
+            steamConnected={cookie}
             ytConnected={false}
           />
           <div id="content">
@@ -157,6 +161,12 @@ class App extends Component {
                 currentChildTab={this.state.currentChildTab}
                 requiredTab="tab-setlist"
                 updateHeader={this.updateChildHeader}
+                resetHeader={this.resetHeader}
+                handleChange={this.updateProfile}
+              />
+              <SettingsView
+                currentTab={this.state.currentTab}
+                updateHeader={this.updateHeader}
                 resetHeader={this.resetHeader}
                 handleChange={this.updateProfile}
               />

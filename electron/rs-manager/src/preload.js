@@ -9,6 +9,7 @@ window.sqlite = require("sqlite");
 window.fetch = fetch;
 window.http = require("http");
 window.os = require("os");
+window.prompt = require('electron-prompt');
 
 const rp = require('request-promise');
 
