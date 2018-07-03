@@ -156,6 +156,26 @@ export default class PSARCView extends React.Component {
       this.psarcRead(results);
     }
   }
+  openFileDialog = async () => {
+    const files = remote.dialog.showOpenDialog({
+      properties: ["openFile"],
+      filters: [
+        { name: 'PSARC', extensions: ['psarc'] },
+      ],
+    });
+    if (files === null || typeof files === 'undefined' || files.length <= 0) {
+      return;
+    }
+    const results = [];
+    const fs = remote.require("fs");
+    const statres = fs.statSync(files[0]);
+    results.push([files[0], statres]);
+    console.log("psarc found: " + results.length);
+    if (results.length > 0) {
+      this.setState({ processing: true });
+      this.psarcRead(results);
+    }
+  }
   walkSync = (dir, results) => {
     const fs = remote.require("fs");
     const files = fs.readdirSync(dir);
@@ -448,7 +468,7 @@ export default class PSARCView extends React.Component {
                       <h1> Arrangements: {this.state.selectedpsarcData.arrangements.length}</h1>
                       <div className="psarcFiles">
                         <BootstrapTable
-                          keyField="difficulty"
+                          keyField="uniquekey"
                           data={this.state.selectedpsarcData.arrangements}
                           columns={arrcolumns}
                           classes="psarcTable"

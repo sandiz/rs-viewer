@@ -13,6 +13,7 @@ export default class SongDetailView extends React.Component {
       setlists: [],
       currentSetlist: '',
     }
+    this.modal_div = null;
     this.ptplayer = null
     this.mvplayer = null
   }
@@ -30,6 +31,10 @@ export default class SongDetailView extends React.Component {
     }
     return nextprops.showDetail;
   }
+  componentDidUpdate = () => {
+    if (this.modal_div) { this.modal_div.scrollTop = 0 }
+  }
+
   onKeyUp = (e) => {
     console.log(e.KeyCode);
   }
@@ -109,7 +114,7 @@ export default class SongDetailView extends React.Component {
     }
     if (this.props.showDetail === false) { return null; }
     return (
-      <div id="open-modal" className="modal-window" style={{ opacity: 1, pointerEvents: "auto" }}>
+      <div ref={(ref) => { this.modal_div = ref }} id="open-modal" className="modal-window" style={{ opacity: 1, pointerEvents: "auto" }}>
         <div id="modal-info" className={modalinfostyle}>
           <a onKeyUp={this.onKeyUp} title="Close" className="modal-close" onClick={this.handleHide}>Close</a>
           <br />
