@@ -74,10 +74,21 @@ export default class SettingsView extends React.Component {
                     Rocksmith Profile (_prfldb):
                   </a>
                 </span>
-                <span style={{ float: 'right' }}>
-                  <a onClick={this.enterPrfldb}>
-                    <i>{path.basename(this.state.prfldb).toLowerCase()}</i>
-                  </a>
+                <span style={{
+                  float: 'right',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  width: 400 + 'px',
+                  textAlign: 'right',
+                }}>
+                  {
+                    this.state.prfldb === '' ?
+                      <a onClick={this.enterPrfldb}>Click to Change </a>
+                      :
+                      <a onClick={this.enterPrfldb}>
+                        <i>{path.basename(this.state.prfldb).toLowerCase()}</i>
+                      </a>
+                  }
                 </span>
                 <br />
                 <div className="ta-center">

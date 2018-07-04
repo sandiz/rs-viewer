@@ -169,6 +169,7 @@ export default class DashboardView extends React.Component {
   fetchRandomStats = async (changesong = true, changepack = true) => {
     if (changesong) {
       const rsong = await getRandomSongOwned();
+      if (typeof rsong === 'undefined') { return; }
       let mastery = rsong.mastery * 100;
       if (Math.round(mastery) !== mastery) { mastery = mastery.toFixed(2); }
       this.setState({
