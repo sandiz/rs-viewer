@@ -4,6 +4,7 @@ import { initSongsAvailableDB, isDLCInDB, addToSteamDLCCatalog, getDLCDetails, c
 import { RemoteAll } from './songlistView';
 import { getOwnedPackages } from '../steamprofileService';
 import SongDetailView from './songdetailView';
+import { getSteamLoginSecureCookie } from '../configService'
 
 export function replaceRocksmithTerms(str) {
   return str.replace("Rocksmith® 2014 Edition – Remastered –", "").replace("Rocksmith® 2014 – ", "").replace("Rocksmith® 2014 Edition – Remastered -", "").replace("Rocksmith® 2014 Edition - Remastered –", "");
@@ -167,9 +168,26 @@ export default class SongAvailableView extends React.Component {
     this.setState({ dlcs: output, page: 1, totalSize: output[0].acount });
   }
   updateOwnedStatus = async () => {
-    const pack = await getOwnedPackages();
+    const cookie = await getSteamLoginSecureCookie();
+    if (cookie.length < 10 || cookie === '' || cookie == null) {
+      this.props.updateHeader(
+        this.tabname,
+        this.childtabname,
+        `Invalid Cookie,Please update Steam Login Cookie in Settings!`,
+      );
+      return;
+    }
+    const pack = await getOwnedPackages(cookie);
     let totalPackages = pack.rgOwnedApps;
     totalPackages = totalPackages.concat(pack.rgOwnedPackages);
+    if (totalPackages.length === 0) {
+      this.props.updateHeader(
+        this.tabname,
+        this.childtabname,
+        `No Packages Found, is the Steam Login Cookie valid ?`,
+      );
+      return;
+    }
     for (let i = 0; i < totalPackages.length; i += 1) {
       const pid = totalPackages[i];
       //eslint-disable-next-line
@@ -177,7 +195,7 @@ export default class SongAvailableView extends React.Component {
       this.props.updateHeader(
         this.tabname,
         this.childtabname,
-        `Checking for ID: ${pid}`,
+        `Checking for Package/App ID: ${pid}`,
       );
     }
     const output = await getDLCDetails(
@@ -192,6 +210,8 @@ export default class SongAvailableView extends React.Component {
       page: this.state.page,
       sizePerPage: this.state.sizePerPage,
       filters: {},
+      sortField: "owned",
+      sortOrder: "desc",
     })
   }
   handleSearchChange = (e) => {
@@ -243,8 +263,10 @@ export default class SongAvailableView extends React.Component {
       sizePerPage,
       sortField === null ? "release_date" : sortField,
       sortOrder === null ? "desc" : sortOrder,
-      (owned === true || owned === false) ? "" : this.search.value,
-      owned,
+      (owned === true || owned === false ||
+        this.search.value === "owned" || this.search.value === "available") ? "" : this.search.value,
+      //eslint-disable-next-line
+      (this.search.value === "owned") ? 'true' : this.search.value === 'available' ? 'false' : owned,
     )
     if (output.length > 0) {
       this.props.updateHeader(

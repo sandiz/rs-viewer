@@ -8,9 +8,6 @@ import getProfileConfig, { updateProfileConfig } from '../configService';
 
 const path = require('path');
 
-const { remote } = window.require('electron')
-
-
 function unescapeFormatter(cell, row) {
   return <span>{unescape(cell)}</span>;
 }
@@ -204,24 +201,23 @@ export default class SetlistView extends React.Component {
   }
   updateMastery = async () => {
     const prfldb = await getProfileConfig();
-    let prfldbs = []
-    if (prfldb !== "") { //check for file sync also
-      prfldbs.push(prfldb);
-    }
-    else {
-      prfldbs = remote.dialog.showOpenDialog({
-        properties: ["openFile"],
-      });
-    }
-    if (prfldbs.length > 0) {
+    if (prfldb === '' || prfldb === null) {
       this.props.updateHeader(
         this.tabname,
         this.lastChildID,
-        `Decrypting ${path.basename(prfldbs[0])}`,
+        `No Profile found, please update it in Settings!`,
       );
-      const steamProfile = await readProfile(prfldbs[0]);
+      return;
+    }
+    if (prfldb.length > 0) {
+      this.props.updateHeader(
+        this.tabname,
+        this.lastChildID,
+        `Decrypting ${path.basename(prfldb)}`,
+      );
+      const steamProfile = await readProfile(prfldb);
       const stats = steamProfile.Stats.Songs;
-      await updateProfileConfig(prfldbs[0]);
+      await updateProfileConfig(prfldb);
       this.props.handleChange();
       this.props.updateHeader(
         this.tabname,
@@ -303,24 +299,23 @@ export default class SetlistView extends React.Component {
   }
   updateFavs = async () => {
     const prfldb = await getProfileConfig();
-    let prfldbs = []
-    if (prfldb !== "") { //check for file sync also
-      prfldbs.push(prfldb);
-    }
-    else {
-      prfldbs = remote.dialog.showOpenDialog({
-        properties: ["openFile"],
-      });
-    }
-    if (prfldbs.length > 0) {
+    if (prfldb === '' || prfldb === null) {
       this.props.updateHeader(
         this.tabname,
         this.lastChildID,
-        `Decrypting ${path.basename(prfldbs[0])}`,
+        `No Profile found, please update it in Settings!`,
       );
-      const steamProfile = await readProfile(prfldbs[0]);
+      return;
+    }
+    if (prfldb.length > 0) {
+      this.props.updateHeader(
+        this.tabname,
+        this.lastChildID,
+        `Decrypting ${path.basename(prfldb)}`,
+      );
+      const steamProfile = await readProfile(prfldb);
       const stats = steamProfile.FavoritesListRoot.FavoritesList;
-      await updateProfileConfig(prfldbs[0]);
+      await updateProfileConfig(prfldb);
       this.props.handleChange();
       this.props.updateHeader(
         this.tabname,

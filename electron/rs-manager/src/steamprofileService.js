@@ -39,11 +39,12 @@ export default async function readProfile(prfldb) {
   }
   return null;
 }
-export async function getOwnedPackages() {
+export async function getOwnedPackages(cookie) {
   const c = await window.request(
     "https://store.steampowered.com/dynamicstore/userdata/",
-    'steamLoginSecure=76561197985613182%7C%7C4B2D9C3BFDDB12750CD0BB9086C188AAD7051295',
+    `steamLoginSecure=${cookie}`,
     'https://store.steampowered.com',
   );
+
   return JSON.parse(c);
 }

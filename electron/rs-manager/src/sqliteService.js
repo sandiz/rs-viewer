@@ -70,6 +70,7 @@ export async function getDLCDetails(start = 0, count = 10, sortField = "release_
           where (name like '%${escape(search)}%' or appid like '%${escape(search)}%') ${allownedstring}
           ORDER BY ${sortField} ${sortOrder} LIMIT ${start},${count}`;
   }
+  console.log(sql);
   const output = await db.all(sql);
   return output
 }

@@ -9,7 +9,6 @@ import SongDetailView from './songdetailView';
 
 const path = require('path');
 
-const { remote } = window.require('electron')
 export default class DashboardView extends React.Component {
   constructor(props) {
     super(props);
@@ -88,22 +87,13 @@ export default class DashboardView extends React.Component {
   };
   fetchStats = async (disbleDialog) => {
     const prfldb = await getProfileConfig();
-    let prfldbs = []
-    if (prfldb !== "") { //check for file sync also
-      prfldbs.push(prfldb);
+    if (prfldb === "" || prfldb === null) {
+      return;
     }
-    else {
-      if (disbleDialog) {
-        return;
-      }
-      prfldbs = remote.dialog.showOpenDialog({
-        properties: ["openFile"],
-      });
-    }
-    if (prfldbs.length > 0) {
-      const steamProfile = await readProfile(prfldbs[0]);
+    if (prfldb.length > 0) {
+      const steamProfile = await readProfile(prfldb);
       const stats = steamProfile.Stats;
-      await updateProfileConfig(prfldbs[0]);
+      await updateProfileConfig(prfldb);
       this.props.handleChange();
       let mostPlayed = "";
       const keys = Object.keys(stats.Songs);
@@ -214,23 +204,21 @@ export default class DashboardView extends React.Component {
   }
   updateMastery = async () => {
     const prfldb = await getProfileConfig();
-    let prfldbs = []
-    if (prfldb !== "") { //check for file sync also
-      prfldbs.push(prfldb);
-    }
-    else {
-      prfldbs = remote.dialog.showOpenDialog({
-        properties: ["openFile"],
-      });
-    }
-    if (prfldbs.length > 0) {
+    if (prfldb === '' || prfldb === null) {
       this.props.updateHeader(
         this.tabname,
-        `Decrypting ${path.basename(prfldbs[0])}`,
+        `No Profile found, please update it in Settings!`,
       );
-      const steamProfile = await readProfile(prfldbs[0]);
+      return;
+    }
+    if (prfldb.length > 0) {
+      this.props.updateHeader(
+        this.tabname,
+        `Decrypting ${path.basename(prfldb)}`,
+      );
+      const steamProfile = await readProfile(prfldb);
       const stats = steamProfile.Stats.Songs;
-      await updateProfileConfig(prfldbs[0]);
+      await updateProfileConfig(prfldb);
       this.props.handleChange();
       this.props.updateHeader(
         this.tabname,

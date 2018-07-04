@@ -1,8 +1,9 @@
 import React from 'react'
 import PropTypes from 'prop-types';
 import path from 'path'
-import getProfileConfig, { updateSteamLoginSecureCookie, getSteamLoginSecureCookie } from '../configService';
+import getProfileConfig, { updateSteamLoginSecureCookie, getSteamLoginSecureCookie, updateProfileConfig } from '../configService';
 
+const { remote } = window.require('electron')
 export default class SettingsView extends React.Component {
   constructor(props) {
     super(props);
@@ -22,8 +23,21 @@ export default class SettingsView extends React.Component {
     if (this.state.steamLoginSecure !== "" && this.state.steamLoginSecure != null) {
       await updateSteamLoginSecureCookie(this.state.steamLoginSecure);
     }
+    if (this.state.prfldb !== "" && this.state.prfldb != null) {
+      await updateProfileConfig(this.state.prfldb);
+    }
     this.props.handleChange();
     this.props.updateHeader(this.tabname, "Settings Saved!");
+  }
+  enterPrfldb = async () => {
+    const prfldbs = remote.dialog.showOpenDialog({
+      properties: ["openFile"],
+    });
+    if (prfldbs == null) { return; }
+    if (prfldbs.length > 0) {
+      this.setState({ prfldb: prfldbs[0] });
+      this.props.handleChange();
+    }
   }
   enterCookie = async () => {
     //eslint-disable-next-line
@@ -56,21 +70,29 @@ export default class SettingsView extends React.Component {
               <div style={{ marginTop: -6 + 'px', paddingLeft: 30 + 'px', paddingRight: 30 + 'px' }}>
                 <br /><br />
                 <span style={{ float: 'left' }}>
-                  Rocksmith Profile (_prfldb):
+                  <a onClick={this.enterPrfldb}>
+                    Rocksmith Profile (_prfldb):
+                  </a>
                 </span>
                 <span style={{ float: 'right' }}>
-                  <i>{path.basename(this.state.prfldb).toLowerCase()}</i>
+                  <a onClick={this.enterPrfldb}>
+                    <i>{path.basename(this.state.prfldb).toLowerCase()}</i>
+                  </a>
                 </span>
                 <br />
                 <div className="ta-center">
                   <span style={{ color: '#ccc' }}>
                     Choose the rocksmith profile to read the stats from.
-                The profile is only read and never written to.
+                    The profile is only read and never written to.<br />
+                    RS profile ends with _prfldb and is typically found
+                    in your __SteamFolder__/Steam/userdata/__random_number__/221680/remote/
                   </span>
                 </div>
                 <br />
                 <span style={{ float: 'left' }}>
-                  Steam Login Cookie (steamLoginSecure):
+                  <a onClick={this.enterCookie}>
+                    Steam Login Cookie (steamLoginSecure):
+                  </a>
                 </span>
                 <span style={{
                   float: 'right',
@@ -83,14 +105,24 @@ export default class SettingsView extends React.Component {
                     this.state.steamLoginSecure === '' ?
                       <a onClick={this.enterCookie}>Click to Change </a>
                       :
-                      <i>{(this.state.steamLoginSecure).toLowerCase()}</i>
+                      <i>
+                        <a onClick={this.enterCookie}>
+                          {(this.state.steamLoginSecure).toLowerCase()}
+                        </a>
+                      </i>
                   }
                 </span>
                 <br />
                 <div className="ta-center">
                   <span style={{ color: '#ccc' }}>
                     Steam Login Cookie is used to update owned status in Songs Available view.
-                    The login cookie is valid as long the browser session is valid.
+                    The login cookie is valid as long the browser session is valid. The app queries
+                    &nbsp;
+                    <a style={{ color: 'blue' }} onClick={() => window.shell.openExternal("http://store.steampowered.com/dynamicstore/userdata/")}>
+                      your userdata</a>
+                    &nbsp;
+                    to fetch your dlc&#39;s. You can check your data
+                  by logging on to steam and clicking the link.
                   </span>
                 </div>
                 <br />
